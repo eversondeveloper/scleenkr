@@ -1,17 +1,69 @@
-# React + Vite
+# EversCash Frontend 💻
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+O **EversCash Frontend** é uma aplicação Single Page Application (SPA) desenvolvida em **React**, projetada para oferecer uma experiência de Ponto de Venda (PDV) ágil, intuitiva e com ferramentas avançadas de gestão financeira.
 
-Currently, two official plugins are available:
+## 🚀 Principais Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 🛒 Ponto de Venda (PDV)
+* **Catálogo Inteligente:** Listagem de produtos com busca em tempo real.
+* **Carrinho Dinâmico:** Gerenciamento de itens, quantidades e subtotais.
+* **Smart Change:** Sistema de cálculo de troco com atalhos de valores comuns.
+* **Atalhos de Teclado:** Operação rápida para finalizar vendas sem o uso do mouse.
 
-## React Compiler
+### 📊 Gestão e Relatórios
+* **Fluxo de Caixa:** Dashboard com resumo de vendas brutas, sangrias e saldo líquido estimado.
+* **Filtros Avançados:** Busca por período de datas e múltiplos métodos de pagamento simultâneos.
+* **Auditoria de Vendas:** Identificação visual de vendas editadas e referências de transação (Pix/Cartão).
+* **Exportação PDF:** Geração de relatórios profissionais para fechamento de caixa.
+* **Notas Diárias:** Editor Rich Text (WYSIWYG) para registrar ocorrências do dia.
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## 🏗️ Estrutura do Projeto
 
-## Expanding the ESLint configuration
+Abaixo, a organização dos principais arquivos e diretórios:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# projeto_everscash
+### `components/`
+* **Relatórios:**
+    * `TabelaVendasComponent.jsx`: Exibição detalhada de vendas e métodos.
+    * `TabelaRetiradasComponent.jsx`: Gestão de sangrias/retiradas.
+    * `SecaoResumo.jsx`: Cartões financeiros e totalização por método.
+    * `SecaoFiltros.jsx`: Controles de data e pagamento.
+    * `SecaoDelecao.jsx`: Ações de massa e exportação.
+* **Modais:**
+    * `ModalEdicaoVenda.jsx`: Correção de métodos de pagamento pós-venda.
+    * `ModalRetirada.jsx`: Registro de novas saídas de caixa.
+    * `ModalObservacao.jsx`: Editor de texto rico para notas diárias.
+
+### `hooks/`
+* `useVendas.js`: Integração com API de vendas e deleção.
+* `useCalculos.js`: Lógica de processamento de totais e saldo líquido.
+* `useGeracaoPDF.js`: Configuração e geração do documento PDF (jspdf/jspdf-autotable).
+* `useObservacoes.js`: Gerenciamento do CRUD de notas diárias.
+
+## 🛠️ Tecnologias Utilizadas
+
+* **React.js:** Biblioteca principal.
+* **Styled Components:** Estilização encapsulada e temas (Dark Mode).
+* **Axios:** Consumo da API REST.
+* **jsPDF:** Geração de relatórios em PDF.
+* **Lucide React / FontAwesome:** Ícones de interface.
+
+## 🔧 Como Executar
+
+1.  Clone o repositório:
+    ```bash
+    git clone https://github.com/eversondeveloper/projeto_everscash.git
+    ```
+2.  Instale as dependências:
+    ```bash
+    npm install
+    ```
+3.  Configure o arquivo `.env` com a URL da API:
+    ```env
+    REACT_APP_API_URL=http://localhost:3000
+    ```
+4.  Inicie a aplicação:
+    ```bash
+    npm start
+    ```
+
+© 2026 Everscript - Ponto de Venda e Gestão Inteligente.
