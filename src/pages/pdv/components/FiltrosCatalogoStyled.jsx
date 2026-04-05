@@ -110,11 +110,19 @@ export const FiltrosCatalogoStyled = styled.div`
     transition: none !important;
   }
 
+  /* --- AJUSTE NO CONTAINER DA BUSCA --- */
+  .grupo-busca-principal {
+    position: relative !important;
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
   .input-filtro-busca {
     width: 100% !important;
     background-color: #1a1a1a !important;
     border: 1px solid #333 !important;
-    padding: 12px 16px !important;
+    padding: 12px 40px 12px 16px !important; /* Aumentado padding direita para o botão */
     border-radius: 10px !important;
     color: #fff !important;
     font-size: 14px !important;
@@ -126,6 +134,31 @@ export const FiltrosCatalogoStyled = styled.div`
     &:focus {
       border-color: #646cff !important;
       box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.1) !important;
+    }
+  }
+
+  /* --- AJUSTE NO BOTÃO DE LIMPAR (X) --- */
+  .btn-limpar-input-interno {
+    position: absolute !important;
+    right: 12px !important;
+    top: calc(50% + 2px) !important; /* Ajustado para compensar o margin-top do input */
+    transform: translateY(-50%) !important;
+    background: #333 !important;
+    border: none !important;
+    color: #fff !important;
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 10px !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    z-index: 5 !important;
+
+    &:hover {
+      background: #ff5252 !important;
     }
   }
 

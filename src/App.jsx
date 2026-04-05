@@ -18,10 +18,24 @@ function App() {
   const [menuAberto, setMenuAberto] = useState(false);
   const [statusSom] = useState(false);
 
-  const { atendentes, buscarAtendentes } = useAtendentes();
-  const { sessaoAtual, buscarSessaoAtual } = useSessoesCaixa();
+  // Importamos os estados e as funções de busca dos hooks
+  const { atendentes, buscarAtendentes, setAtendentes } = useAtendentes();
+  const { sessaoAtual, buscarSessaoAtual, setSessaoAtual } = useSessoesCaixa();
 
-  // Função de busca de empresa memorizada para evitar loops
+  // Função para resetar o estado local IMEDIATAMENTE após deleções
+  // Isso força o React a esconder o PDV sem precisar de reload
+  const resetarSistemaLocal = useCallback((tipo) => {
+    if (tipo === "EMPRESA") {
+      setEmpresaSelecionada(null);
+      setSessaoAtual(null);
+      setAtendentes([]);
+    }
+    if (tipo === "SESSAO" || tipo === "ATENDENTE") {
+      setSessaoAtual(null);
+      buscarAtendentes(); // Atualiza a lista caso um atendente tenha sido deletado
+    }
+  }, [setSessaoAtual, setAtendentes, buscarAtendentes]);
+
   const carregarDadosEmpresa = useCallback(async () => {
     try {
       const resposta = await fetch(URL_API_EMPRESAS);
@@ -41,7 +55,6 @@ function App() {
     }
   }, []);
 
-  // Efeito inicial e sincronização global
   useEffect(() => {
     const inicializarSistema = async () => {
       await carregarDadosEmpresa();
@@ -59,10 +72,8 @@ function App() {
     setMenuAberto(!menuAberto);
   };
 
-  // Verificação de segurança para o PDV
   const temAtendentes = atendentes && atendentes.length > 0;
 
-  // Enquanto o App decide se existe empresa ou não, mostramos uma tela neutra
   if (carregandoSistema) {
     return <div style={{ background: '#1e1e1e', height: '100vh', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Sincronizando sistema...</div>;
   }
@@ -90,12 +101,7 @@ function App() {
           )}
 
           <nav className={`menu-flutuante ${menuAberto ? 'ativo' : ''}`}>
-            <button 
-              className="menuButton" 
-              onClick={toggleMenu}
-              aria-expanded={menuAberto}
-              type="button"
-            >
+            <button className="menuButton" onClick={toggleMenu} aria-expanded={menuAberto} type="button">
               {menuAberto ? "✕" : "☰"}
             </button>
 
@@ -119,7 +125,6 @@ function App() {
                 somStatus={statusSom} 
                 sessaoAtual={sessaoAtual} 
                 temAtendentes={temAtendentes}
-                // Passamos a empresa selecionada para garantir que o PDV a reconheça
                 empresaGlobal={empresaSelecionada} 
               />
             } 
@@ -128,7 +133,20 @@ function App() {
           <Route path="/everscash/relatorios" element={<Relatorios empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
           <Route path="/everscash/produtos" element={<Produtos $empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
           <Route path="/everscash/gerarcupom" element={<GerarCupom empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
-          <Route path="/everscash/atendentes_sessao" element={<CadastroAtendentes empresaSelecionada={empresaSelecionada} somStatus={statusSom} onAtualizarEmpresa={carregarDadosEmpresa} />} />
+          
+          {/* PASSAMOS O resetarSistemaLocal PARA A PÁGINA DE CADASTRO */}
+          <Route 
+            path="/everscash/atendentes_sessao" 
+            element={
+              <CadastroAtendentes 
+                empresaSelecionada={empresaSelecionada} 
+                somStatus={statusSom} 
+                onAtualizarEmpresa={carregarDadosEmpresa}
+                onResetEstado={resetarSistemaLocal} 
+                buscarSessaoAtual={buscarSessaoAtual}
+              />
+            } 
+          />
           
           <Route path="*" element={<Navigate to="/everscash/" />} />
         </Routes>

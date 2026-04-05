@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ToastMensagemStyled } from "./ToastMensagemStyled";
-import { useNavigate } from "react-router-dom"; // Importado para navegação interna
+import { useNavigate } from "react-router-dom";
 
 const ToastMensagem = ({ mensagem, onClose }) => {
   const [visible, setVisible] = useState(false);
@@ -8,12 +8,11 @@ const ToastMensagem = ({ mensagem, onClose }) => {
 
   useEffect(() => {
     if (mensagem) {
-      // Pequeno delay para garantir que o componente montou antes da animação
       const startTimer = setTimeout(() => setVisible(true), 10);
       
       const timer = setTimeout(() => {
         setVisible(false);
-        setTimeout(() => onClose(), 400); // Espera a animação de saída
+        setTimeout(() => onClose(), 400); 
       }, 4500); 
 
       return () => {
@@ -39,7 +38,6 @@ const ToastMensagem = ({ mensagem, onClose }) => {
     return "i";
   };
 
-  // Verifica se a mensagem refere-se a uma venda com sucesso
   const ehVendaSucesso = mensagem.includes("Venda registrada");
 
   const handleNavegacao = () => {
@@ -59,7 +57,6 @@ const ToastMensagem = ({ mensagem, onClose }) => {
       className={`toast-${getTipoToast()} ${visible ? "visible" : ""} ${ehVendaSucesso ? "clicavel" : ""}`}
       onClick={handleNavegacao}
       title={ehVendaSucesso ? "Clique para ver nos relatórios" : ""}
-      // Garantia de cursor pointer via inline style se a condição for verdadeira
       style={{ cursor: ehVendaSucesso ? "pointer" : "default" }}
     >
       <div className="toast-corpo">

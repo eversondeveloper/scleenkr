@@ -1,7 +1,8 @@
+/* eslint-disable no-unused-vars */
 import { useVendas } from "./hooks/useVendas";
 import { useFiltros } from "./hooks/useFiltros";
 import { useAtalhos } from "./hooks/useAtalhos";
-import { useEmpresa } from "./hooks/useEmpresa";
+// Removido useEmpresa daqui, pois agora usaremos a empresaGlobal que vem do App
 import { useOrganizacao } from "./hooks/useOrganizacao";
 import ToastMensagem from "./components/ToastMensagem";
 import FiltrosCatalogo from "./components/FiltrosCatalogo";
@@ -19,7 +20,8 @@ import somClickArquivoMenos from "/sounds/efeitos/selecionarmenos.mp3";
 
 const METODOS_NAVEGACAO = ["Dinheiro", "Crédito", "Débito", "Pix", "Misto"];
 
-export default function ComponenteVendas({ sessaoAtual, temAtendentes }) {
+// ADICIONADO empresaGlobal NAS PROPS
+export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGlobal }) {
   const navigate = useNavigate();
 
   // --- ÁUDIOS ---
@@ -89,7 +91,6 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes }) {
     limparFiltros
   } = useFiltros(produtosDB);
 
-  const { empresa } = useEmpresa();
   const { modoOrganizacao, setModoOrganizacao, OPCOES_ORGANIZACAO } = useOrganizacao();
 
   // --- FUNÇÕES DE AÇÃO COM LIMPEZA ---
@@ -134,7 +135,29 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes }) {
     inputValorRecebidoRef
   });
 
-  // --- TELA DE BLOQUEIO (Sessão ou Atendentes) ---
+  // --- 1. BLOQUEIO POR FALTA DE EMPRESA (NOVA TRAVA INSTANTÂNEA) ---
+  if (!empresaGlobal) {
+    return (
+      <ComponenteVendasStyled>
+        <div className="container-bloqueio-caixa">
+          <div className="card-bloqueio" style={{ border: '2px solid #2196F3' }}>
+            <span className="icone-bloqueio">🏢</span>
+            <h2>Sistema não Configurado</h2>
+            <p>Os dados da empresa emissora foram removidos ou não existem.</p>
+            <button 
+              className="btn-ir-atendentes" 
+              onClick={() => navigate("/everscash/atendentes_sessao")}
+              style={{ background: '#2196F3' }}
+            >
+              Configurar Empresa
+            </button>
+          </div>
+        </div>
+      </ComponenteVendasStyled>
+    );
+  }
+
+  // --- 2. TELA DE BLOQUEIO (Sessão ou Atendentes) ---
   if (!temAtendentes || !sessaoAtual) {
     return (
       <ComponenteVendasStyled>
@@ -202,7 +225,7 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes }) {
               removerProduto={removerProduto}
               handleQuantidadeChange={handleQuantidadeChange}
               totalGeral={totalGeral}
-              dadosEmpresa={empresa}
+              dadosEmpresa={empresaGlobal} // Alterado para empresaGlobal
               somClick={tocarSomProduto}
               somClickMenos={tocarSomProdutoMenos}
             />
@@ -248,7 +271,7 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes }) {
           </>
         ) : (
           <div className="espera-venda">
-            <div className="logo-espera">{empresa?.nome_fantasia?.toUpperCase() || "EVERSCASH"}</div>
+            <div className="logo-espera">{empresaGlobal?.nome_fantasia?.toUpperCase() || "EVERSCASH"}</div>
             <div className="letreiro-container">
               <h2 className="letreiro-status">CAIXA LIVRE</h2>
             </div>

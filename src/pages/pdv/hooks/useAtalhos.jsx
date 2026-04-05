@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect } from "react"; 
 
 export const useAtalhos = ({
@@ -12,35 +13,46 @@ export const useAtalhos = ({
 }) => {
   useEffect(() => {
     const handleKeyPress = (event) => {
-      // F2 sempre alterna o método, independente de onde o foco está
+      const elementoAtivo = document.activeElement;
+      const ehInput = elementoAtivo.tagName === "INPUT" || elementoAtivo.tagName === "TEXTAREA";
+
+      // F2: Alterna método de pagamento e já foca no valor
       if (event.key === "F2") {
         event.preventDefault();
         alternarMetodoPagamento?.();
+        // O Hook useVendas já cuidará do foco automático via useEffect
         return; 
       }
 
-      const elementoAtivo = document.activeElement;
-      // Melhorada a detecção de input para capturar variações do navegador
-      const ehInput = elementoAtivo.tagName === "INPUT" || elementoAtivo.tagName === "TEXTAREA";
-
-      if (ehInput && event.key === "Enter") {
-        // 1. Carrinho -> Pula para Pagamento
-        if (elementoAtivo.className.includes("input-quantidade-campo")) {
-          event.preventDefault();
-          elementoAtivo.blur();
-          setTimeout(() => {
+      // ENTER: A tecla mestre de fluxo
+      if (event.key === "Enter") {
+        // 1. Se estiver na Busca de Produtos e o carrinho não estiver vazio, pula para o pagamento
+        if (elementoAtivo === inputFiltroBuscaRef.current && produtosSelecionados.length > 0) {
+            event.preventDefault();
             const inputDinheiro = document.querySelector(".valorrecebido");
             const primeiroMisto = document.querySelector(".input-misto-valor");
             const alvo = inputDinheiro || primeiroMisto;
             if (alvo) {
-              alvo.focus();
-              alvo.select(); // Já deixa selecionado para facilitar a troca
+                alvo.focus();
+                alvo.select();
             }
-          }, 50);
+            return;
+        }
+
+        // 2. Se estiver editando Quantidade -> Pula para o Valor do Pagamento
+        if (elementoAtivo.className.includes("input-quantidade-campo")) {
+          event.preventDefault();
+          const inputDinheiro = document.querySelector(".valorrecebido");
+          const primeiroMisto = document.querySelector(".input-misto-valor");
+          const alvo = inputDinheiro || primeiroMisto;
+          if (alvo) {
+            alvo.focus();
+            alvo.select();
+          }
           return;
         }
 
-        // 2. Navegação Circular no Pagamento Misto
+        // 3. Navegação em Pagamento Misto
         if (elementoAtivo.className.includes("input-misto-valor")) {
           event.preventDefault();
           const todosInputsMistos = Array.from(document.querySelectorAll(".input-misto-valor"));
@@ -57,46 +69,60 @@ export const useAtalhos = ({
             if (podeFinalizarVenda) {
               finalizarVenda();
             } else {
-              const primeiro = todosInputsMistos[0];
-              primeiro.focus();
-              primeiro.select();
+              // Loop para o primeiro caso o valor ainda não bata
+              todosInputsMistos[0].focus();
+              todosInputsMistos[0].select();
             }
             return;
           }
         }
 
-        // 3. Pagamento em Dinheiro Único
+        // 4. Pagamento em Dinheiro Único -> Finaliza ou Seleciona para corrigir
         if (elementoAtivo.className.includes("valorrecebido")) {
-          event.preventDefault(); // Previne comportamento padrão do form
+          event.preventDefault();
           if (podeFinalizarVenda) {
             finalizarVenda();     
           } else {
-            // Se não puder finalizar, apenas seleciona o texto para correção
             elementoAtivo.select();
           }
           return;
         }
+
+        // 5. Se não estiver em input nenhum mas puder finalizar, finaliza
+        if (!ehInput && podeFinalizarVenda) {
+            event.preventDefault();
+            finalizarVenda();
+            return;
+        }
       }
 
-      // Atalhos Globais
-      if (event.key === "Enter" && podeFinalizarVenda && !ehInput) {
+      // ESCAPE: Cancela ou Limpa
+      if (event.key === "Escape") {
         event.preventDefault();
-        finalizarVenda();
-      } else if (event.key === "Escape") {
-        event.preventDefault();
-        produtosSelecionados.length > 0 ? cancelarVenda() : limparFiltros();
-      } else if (event.key === " ") {
-        // Só foca na busca se não estiver digitando em nenhum outro input
-        if (!ehInput) {
-          event.preventDefault();
-          inputFiltroBuscaRef.current?.focus();
+        if (produtosSelecionados.length > 0) {
+            cancelarVenda();
+        } else {
+            limparFiltros();
+            inputFiltroBuscaRef.current?.focus();
         }
+      }
+
+      // ESPAÇO: Atalho rápido para voltar à busca
+      if (event.key === " " && !ehInput) {
+        event.preventDefault();
+        inputFiltroBuscaRef.current?.focus();
+      }
+      
+      // DELETE/BACKSPACE: Remove o último item se não estiver digitando
+      if ((event.key === "Delete" || event.key === "Backspace") && !ehInput && produtosSelecionados.length > 0) {
+          event.preventDefault();
+          const ultimoItem = produtosSelecionados[produtosSelecionados.length - 1];
+          removerProduto(ultimoItem.idUnico);
       }
     };
 
     document.addEventListener("keydown", handleKeyPress);
     return () => document.removeEventListener("keydown", handleKeyPress);
     
-    // Adicionado inputFiltroBuscaRef às dependências
   }, [podeFinalizarVenda, finalizarVenda, cancelarVenda, produtosSelecionados, removerProduto, limparFiltros, alternarMetodoPagamento, inputFiltroBuscaRef]);
 };

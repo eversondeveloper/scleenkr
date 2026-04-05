@@ -15,10 +15,10 @@ const FiltrosCatalogo = ({
   temFiltrosAtivos,
   limparFiltros,
   inputFiltroBuscaRef,
+  processarBuscaDireta, // Nova prop vinda do useVendas
 }) => {
   const containerFiltrosRef = useRef(null);
 
-  // Inteligência de Foco: Abre o painel e foca no input automaticamente
   useEffect(() => {
     if (filtrosExpandidos) {
       const timer = setTimeout(() => {
@@ -28,6 +28,16 @@ const FiltrosCatalogo = ({
     }
   }, [filtrosExpandidos, inputFiltroBuscaRef]);
 
+  // Função para lidar com o Enter (Leitor de código de barras ou ID)
+  const handleKeyDownBusca = (e) => {
+    if (e.key === "Enter" && filtroBusca.trim() !== "") {
+      const adicionado = processarBuscaDireta(filtroBusca, () => setFiltroBusca(""));
+      if (adicionado) {
+        // Opcional: tocar um som de sucesso aqui se desejar
+      }
+    }
+  };
+
   const classeEstado = filtrosExpandidos ? "expandido" : "recolhido";
 
   return (
@@ -36,25 +46,16 @@ const FiltrosCatalogo = ({
       className={`container-filtros-pdv ${classeEstado}`}
       onMouseEnter={() => setFiltrosExpandidos(true)}
       onMouseLeave={() => setFiltrosExpandidos(false)}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          inputFiltroBuscaRef.current?.focus();
-        }
-      }}
     >
       <div className="cabecalho-filtros">
         <div className="titulo-wrapper">
           <span className="icone-busca">🔍</span>
-          <h3 className="titulo-filtros">BUSCAR NO CATÁLOGO</h3>
+          <h3 className="titulo-filtros">BUSCAR NO CATÁLOGO <small style={{fontSize: '9px', opacity: 0.5}}>[ESPAÇO]</small></h3>
         </div>
-
-        {!filtrosExpandidos ? (
-          // Classe dinâmica para mudar a cor da badge se houver filtros ativos
+        {!filtrosExpandidos && (
           <div className={`badge-status ${temFiltrosAtivos ? "ativo" : ""}`}>
             {temFiltrosAtivos ? "FILTROS ATIVOS" : "PASSE O MOUSE"}
           </div>
-        ) : (
-          <span className="seta-expansao">▼</span>
         )}
       </div>
 
@@ -63,20 +64,17 @@ const FiltrosCatalogo = ({
           <input
             ref={inputFiltroBuscaRef}
             type="text"
-            placeholder="Nome, categoria ou código... [ESPAÇO]"
+            placeholder="ID, Código ou Nome... [ENTER para add]"
             className="input-filtro-busca"
             value={filtroBusca}
             onChange={(e) => setFiltroBusca(e.target.value)}
+            onKeyDown={handleKeyDownBusca} // Gatilho de adição direta
           />
-          {/* Botão para limpar o texto da busca rapidamente */}
           {filtroBusca && (
             <button 
               type="button"
               className="btn-limpar-input-interno"
-              onClick={() => {
-                setFiltroBusca("");
-                inputFiltroBuscaRef.current?.focus();
-              }}
+              onClick={() => { setFiltroBusca(""); inputFiltroBuscaRef.current?.focus(); }}
             >✕</button>
           )}
         </div>
@@ -85,25 +83,21 @@ const FiltrosCatalogo = ({
           <div className="bloco-filtro">
             <label className="label-filtros">CATEGORIAS</label>
             <div className="lista-pills">
-              {categoriasUnicas.length > 0 ? (
-                categoriasUnicas.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    className={`pill-filtro ${filtroCategoriasSelecionadas.includes(cat) ? "ativo" : ""}`}
-                    onClick={() => toggleCategoriaFiltro(cat)}
-                  >
-                    {cat.toUpperCase()}
-                  </button>
-                ))
-              ) : (
-                <span className="msg-vazia">Nenhuma categoria encontrada</span>
-              )}
+              {categoriasUnicas.map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`pill-filtro ${filtroCategoriasSelecionadas.includes(cat) ? "ativo" : ""}`}
+                  onClick={() => toggleCategoriaFiltro(cat)}
+                >
+                  {cat.toUpperCase()}
+                </button>
+              ))}
             </div>
           </div>
 
           <div className="bloco-filtro">
-            <label className="label-filtros">TIPO DE ITEM</label>
+            <label className="label-filtros">TIPO</label>
             <div className="lista-pills">
               {["Todos", "Produto", "Serviço"].map((tipo) => (
                 <button
@@ -120,12 +114,8 @@ const FiltrosCatalogo = ({
         </div>
 
         {temFiltrosAtivos && (
-          <button
-            type="button"
-            className="btn-limpar-filtros-moderno"
-            onClick={limparFiltros}
-          >
-            LIMPAR TODOS OS FILTROS
+          <button type="button" className="btn-limpar-filtros-moderno" onClick={limparFiltros}>
+            LIMPAR TUDO
           </button>
         )}
       </div>

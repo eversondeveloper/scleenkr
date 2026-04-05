@@ -1,6 +1,7 @@
 import { useState, useEffect, memo } from "react";
 import { ButtonStyled } from "./ButtonStyled";
 import imgFavorito from "/favorito.svg";
+import { formatarParaReal } from "../hooks/useVendas";
 
 const CATEGORIA_CORES = {
   "Impressão": "#006064",    
@@ -25,7 +26,7 @@ const getCorCategoria = (categoriaTexto) => {
     return CATEGORIA_CORES[categoriaTexto] || COR_PADRAO_DEFAULT;
 };
 
-const BotaoProduto = ({
+const Button = ({
   $index,
   $texto, 
   $descricao,
@@ -46,13 +47,16 @@ const BotaoProduto = ({
     setCorPadrao(getCorCategoria($texto));
   }, [$texto]); 
 
-  const estaSelecionado = $produtosSelecionados.some(
-    (produto) => produto.id_produto === $id
+  const produtoNoCarrinho = $produtosSelecionados.find(
+    (p) => p.id_produto === $id
   );
+  
+  const estaSelecionado = !!produtoNoCarrinho;
+  const quantidadeNoCarrinho = produtoNoCarrinho ? produtoNoCarrinho.quantidade : 0;
 
   const isMaisVendido = $totalVendido >= LIMITE_MAIS_VENDIDO;
   const isEstoqueBaixo = $tipoItem === 'Produto' && $estoqueAtual < 5;
-  const isEsgotado = $tipoItem === 'Produto' && $estoqueAtual === 0;
+  const isEsgotado = $tipoItem === 'Produto' && $estoqueAtual <= quantidadeNoCarrinho;
 
   return (
     <ButtonStyled
@@ -77,37 +81,49 @@ const BotaoProduto = ({
       <div className="conteudo-produto">
         <label className="categoria-label">{$texto}</label>
         <h4 className="descricao-titulo">{$descricao.toUpperCase()}</h4>
+        
+        {estaSelecionado && (
+          <div className="badge-quantidade-acumulada">
+            {quantidadeNoCarrinho}x
+          </div>
+        )}
+
         <div className="preco-tag">
           <small>R$</small>
-          <strong>{parseFloat($preco).toFixed(2).replace('.', ',')}</strong>
+          <strong>{formatarParaReal($preco)}</strong>
         </div>
       </div>
 
       {isEsgotado && (
-          <div className="overlay-status esgotado">ESGOTADO</div>
+          <div className="overlay-status esgotado">
+            {quantidadeNoCarrinho > 0 ? "LIMITE ESTOQUE" : "ESGOTADO"}
+          </div>
       )}
+      
       {isEstoqueBaixo && !isEsgotado && (
           <div className="tag-alerta-estoque" title={`Estoque Baixo: ${$estoqueAtual} restantes`}>
             ⚠️ BAIXO ESTOQUE
           </div>
       )}
-      
     </ButtonStyled>
   );
 };
 
 const comparadorDeProps = (prev, next) => {
-  const statusMudou = prev.$produtosSelecionados.some(p => p.id_produto === prev.$id) !== 
-                      next.$produtosSelecionados.some(p => p.id_produto === next.$id);
+  const pAnterior = prev.$produtosSelecionados.find(p => p.id_produto === prev.$id);
+  const pAtual = next.$produtosSelecionados.find(p => p.id_produto === next.$id);
 
-  return !statusMudou &&
+  if (pAnterior?.quantidade !== pAtual?.quantidade) return false;
+
+  return (
     prev.$id === next.$id &&
     prev.$index === next.$index &&
     prev.$texto === next.$texto &&
     prev.$descricao === next.$descricao &&
     prev.$preco === next.$preco && 
     prev.$totalVendido === next.$totalVendido && 
-    prev.$estoqueAtual === next.$estoqueAtual;
+    prev.$estoqueAtual === next.$estoqueAtual
+  );
 };
 
-export default memo(BotaoProduto, comparadorDeProps);
+export default memo(Button, comparadorDeProps);

@@ -1,4 +1,5 @@
 import { ResumoVendaStyled } from "./ResumoVendaStyled";
+import { formatarParaReal } from "../hooks/useVendas";
 
 const ResumoVenda = ({
   metodoPagamento,
@@ -13,12 +14,6 @@ const ResumoVenda = ({
 }) => {
   const metodosUsadosMisto = pagamentosMistos?.filter((p) => p.valor > 0) || [];
 
-  // --- Lógica de Arredondamento Seguro para Exibição ---
-  const formatarMoeda = (valor) => {
-    const limpo = Math.round((valor + Number.EPSILON) * 100) / 100;
-    return limpo.toFixed(2).replace(".", ",");
-  };
-
   const formatarMetodosMistos = () => {
     if (metodoPagamento !== "Misto" || !metodosUsadosMisto.length) {
       return metodoPagamento;
@@ -29,8 +24,6 @@ const ResumoVenda = ({
     return metodosUsadosMisto.map((p) => p.metodo).join(" + ");
   };
 
-  // --- Lógica de Status Corrigida ---
-  // Uma venda só pode ser considerada "Paga" se houver itens no carrinho (total > 0)
   const vendaIniciada = totalGeral > 0.001;
   const temPendencia = valorFaltando > 0.001;
   const temTroco = valorTroco > 0.001;
@@ -46,7 +39,7 @@ const ResumoVenda = ({
         <div className="secao-total-venda">
           <label>TOTAL A PAGAR</label>
           <div className="total-valor">
-            R$ {formatarMoeda(totalGeral)}
+            R$ {formatarParaReal(totalGeral)}
           </div>
         </div>
 
@@ -55,36 +48,32 @@ const ResumoVenda = ({
             {metodosUsadosMisto.map((pagamento, index) => (
               <div key={index} className="linha-detalhe">
                 <span>{pagamento.metodo}</span>
-                <strong>R$ {formatarMoeda(pagamento.valor)}</strong>
+                <strong>R$ {formatarParaReal(pagamento.valor)}</strong>
               </div>
             ))}
             <div className="total-pago-row">
               <span>TOTAL RECEBIDO</span>
-              <strong>R$ {formatarMoeda(valorPagoTotal)}</strong>
+              <strong>R$ {formatarParaReal(valorPagoTotal)}</strong>
             </div>
           </div>
         )}
 
         <div className="painel-resultado">
           {!vendaIniciada ? (
-            /* Caso 1: Carrinho Vazio */
             <div className="status-box aguardando">
               <div className="resultado-texto" style={{ color: "#aaa" }}>AGUARDANDO ITENS...</div>
             </div>
           ) : temPendencia ? (
-            /* Caso 2: Falta dinheiro */
             <div className="status-box pendente">
               <label>VALOR RESTANTE</label>
-              <div className="resultado-valor">R$ {formatarMoeda(valorFaltando)}</div>
+              <div className="resultado-valor">R$ {formatarParaReal(valorFaltando)}</div>
             </div>
           ) : temTroco ? (
-            /* Caso 3: Tem troco */
             <div className="status-box troco">
               <label>TROCO</label>
-              <div className="resultado-valor">R$ {formatarMoeda(valorTroco)}</div>
+              <div className="resultado-valor">R$ {formatarParaReal(valorTroco)}</div>
             </div>
           ) : (
-            /* Caso 4: Valor exato e carrinho com itens */
             <div className="status-box pago">
               <div className="resultado-texto">PAGO INTEGRALMENTE</div>
             </div>
@@ -97,7 +86,7 @@ const ResumoVenda = ({
           type="button"
           onClick={cancelarVenda}
           className="btn-cancelar"
-          title="ESC"
+          title="Atalho: ESC"
         >
           CANCELAR [ESC]
         </button>
@@ -107,7 +96,7 @@ const ResumoVenda = ({
           onClick={finalizarVenda}
           className={`btn-finalizar ${podeFinalizarVenda ? "disponivel" : ""}`}
           disabled={!podeFinalizarVenda}
-          title="ENTER"
+          title="Atalho: ENTER"
         >
           FINALIZAR [ENTER]
         </button>

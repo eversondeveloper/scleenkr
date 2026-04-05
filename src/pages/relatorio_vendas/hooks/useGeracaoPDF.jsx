@@ -7,270 +7,242 @@ export const useGeracaoPDF = () => {
   const formatarDataFiltro = (dataString) => {
     if (!dataString) return '';
     const partes = dataString.split('-');
-    if (partes.length !== 3) return dataString;
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
   };
 
-  /**
-   * Limpa tags HTML e preserva quebras de linha e marcadores de lista
-   */
   const processarHtmlParaTexto = (html) => {
     if (!html) return "";
     let texto = html
       .replace(/<br\s*\/?>/gi, "\n")
       .replace(/<\/p>/gi, "\n")
-      .replace(/<div[^>]*>/gi, "\n") 
       .replace(/<li>/gi, "  • ")
-      .replace(/<\/li>/gi, "\n")
       .replace(/<[^>]+>/g, ""); 
-    
-    texto = texto.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-    
-    return texto.trim();
+    return texto.replace(/&nbsp;/g, ' ').trim();
   };
 
-  /**
-   * Formata a identificação do atendente: Primeiro Nome + CPF Mascarado
-   */
   const formatarIdentificacaoPDF = (nome, cpf) => {
     if (!nome) return "Sistema";
     const primeiroNome = nome.split(' ')[0].toUpperCase();
-    if (!cpf) return primeiroNome;
-
-    const cpfLimpo = cpf.replace(/\D/g, '');
+    const cpfLimpo = cpf?.replace(/\D/g, '') || "";
     const cpfFormatado = cpfLimpo.length === 11 
       ? `${cpfLimpo.substring(0, 3)}...${cpfLimpo.substring(9, 11)}` 
-      : cpf;
-
-    return `${primeiroNome} (${cpfFormatado})`;
+      : "";
+    return cpfFormatado ? `${primeiroNome} (${cpfFormatado})` : primeiroNome;
   };
 
   const gerarPDF = async ({
     vendasFiltradas,
     retiradasFiltradas,
-    totaisPorMetodo,
     totalVendasBruto,
-    totalValorPago,
-    totalTroco,
     totalRetiradas,
     totalLiquido,
     quantidadeVendas,
     filtroDataInicio,
     filtroDataFim,
-    filtroMetodosPagamento,
     dadosEmpresa,
     observacoes, 
   }) => {
-    if (quantidadeVendas === 0 && retiradasFiltradas.length === 0 && (!observacoes || observacoes.length === 0)) {
-      console.warn("Não há dados para exportar.");
-      return;
-    }
-
     setGerandoPDF(true);
 
     try {
       const { jsPDF } = await import("jspdf");
-      const doc = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      const margemInferior = 25; 
-      let y = 20;
-
-      let periodoTexto = "Período: Todas as datas";
-      if (filtroDataInicio || filtroDataFim) {
-        const inicio = filtroDataInicio ? formatarDataFiltro(filtroDataInicio) : 'Início';
-        const fim = filtroDataFim ? formatarDataFiltro(filtroDataFim) : 'Fim';
-        periodoTexto = `Período: ${inicio} a ${fim}`;
-      }
+      const margin = 20;
+      let y = 25;
 
       const cores = {
-        primaria: [25, 25, 25],
-        secundaria: [100, 100, 100],
-        destaque: [41, 128, 185],
-        sucesso: [39, 174, 96],
-        alerta: [230, 126, 34],
-        fundo: [248, 248, 248],
-        borda: [220, 220, 220],
+        texto: [44, 62, 80],
+        suave: [127, 140, 141],
+        accent: [52, 73, 94],
+        fundoCard: [248, 250, 252],
+        linha: [226, 232, 240],
+        positivo: [39, 174, 96],
+        negativo: [192, 57, 43]
       };
 
-      const adicionarCabecalhoPagina = () => {
+      const drawHeader = () => {
+        // Logotipo / Nome Empresa
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        doc.setTextColor(...cores.secundaria);
-        doc.text("Continuação do Relatório Financeiro", 20, 15);
-        doc.line(20, 17, pageWidth - 20, 17);
-        return 25; 
-      };
-
-      const adicionarCabecalhoEmpresa = (yStart) => {
-        let currentY = yStart;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(14);
-        doc.setTextColor(...cores.primaria);
-        const nomePrincipal = dadosEmpresa?.nome_fantasia || dadosEmpresa?.razao_social || "EMPRESA NÃO CADASTRADA";
-        doc.text(nomePrincipal, 20, currentY);
-        currentY += 5;
+        doc.setFontSize(16);
+        doc.setTextColor(...cores.accent);
+        doc.text(dadosEmpresa?.nome_fantasia?.toUpperCase() || "RELATÓRIO", margin, y);
+        
         doc.setFontSize(9);
         doc.setFont("helvetica", "normal");
-        doc.setTextColor(...cores.secundaria);
-        if (dadosEmpresa?.cnpj) { doc.text(`CNPJ: ${dadosEmpresa.cnpj}`, 20, currentY); currentY += 4; }
-        doc.setDrawColor(...cores.borda);
-        doc.line(20, currentY + 2, pageWidth - 20, currentY + 2);
-        currentY += 10;
-        doc.setFontSize(12);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(...cores.destaque);
-        doc.text("RELATÓRIO FINANCEIRO", pageWidth / 2, currentY, { align: "center" });
-        currentY += 5;
-        doc.setFontSize(10);
-        doc.setTextColor(...cores.primaria);
-        doc.text(periodoTexto.toUpperCase(), pageWidth / 2, currentY, { align: "center" });
-        currentY += 8;
-        return currentY;
+        doc.setTextColor(...cores.suave);
+        doc.text(dadosEmpresa?.cnpj ? `CNPJ: ${dadosEmpresa.cnpj}` : "", margin, y + 5);
+
+        // Badge do Período (Alinhado à direita)
+        const inicio = filtroDataInicio ? formatarDataFiltro(filtroDataInicio) : 'Início';
+        const fim = filtroDataFim ? formatarDataFiltro(filtroDataFim) : 'Fim';
+        const periodo = `PERÍODO: ${inicio} - ${fim}`;
+        doc.setFontSize(8);
+        doc.text(periodo, pageWidth - margin, y, { align: "right" });
+
+        y += 15;
+        doc.setDrawColor(...cores.linha);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 12;
       };
 
-      y = adicionarCabecalhoEmpresa(y);
-      y += 5;
+      const checkPage = (heightNeeded) => {
+        if (y + heightNeeded > pageHeight - 20) {
+          doc.addPage();
+          y = 20;
+          return true;
+        }
+        return false;
+      };
 
-      // 1. Resumo Executivo
-      doc.setFontSize(11); doc.setFont("helvetica", "bold");
-      doc.text("Resumo Executivo", 20, y);
-      y += 8;
-      const larguraCard = (pageWidth - 50) / 3;
-      const metricaCards = [
-        { titulo: "Vendas", valor: quantidadeVendas, cor: cores.destaque, prefixo: "", formatar: (v) => v.toString() },
-        { titulo: "Faturamento", valor: totalVendasBruto, cor: cores.sucesso, prefixo: "R$ ", formatar: (v) => v.toFixed(2).replace('.', ',') },
-        { titulo: "Saldo Líquido", valor: totalLiquido, cor: totalLiquido >= 0 ? cores.sucesso : [200, 0, 0], prefixo: "R$ ", formatar: (v) => v.toFixed(2).replace('.', ',') },
+      drawHeader();
+
+      // --- 1. DASHBOARD DE RESUMO (CARDS MODERNOS) ---
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...cores.accent);
+      doc.text("RESUMO EXECUTIVO", margin, y);
+      y += 6;
+
+      const cardW = (pageWidth - (margin * 2) - 10) / 3;
+      const cards = [
+        { label: "VENDAS", val: `${quantidadeVendas}`, sub: "transações" },
+        { label: "BRUTO", val: `R$ ${totalVendasBruto.toFixed(2).replace('.', ',')}`, sub: "faturamento" },
+        { label: "LÍQUIDO", val: `R$ ${totalLiquido.toFixed(2).replace('.', ',')}`, sub: "em caixa", color: totalLiquido >= 0 ? cores.positivo : cores.negativo }
       ];
 
-      let xCard = 20;
-      metricaCards.forEach((card) => {
-        doc.setFillColor(245, 245, 245);
-        doc.roundedRect(xCard, y, larguraCard, 20, 2, 2, "F");
-        doc.setFontSize(8); doc.setTextColor(...cores.secundaria);
-        doc.text(card.titulo, xCard + 5, y + 7);
-        doc.setFontSize(11); doc.setTextColor(...card.cor);
-        doc.text(card.prefixo + card.formatar(card.valor), xCard + 5, y + 15);
-        xCard += larguraCard + 5;
+      cards.forEach((c, i) => {
+        const x = margin + (i * (cardW + 5));
+        doc.setFillColor(...cores.fundoCard);
+        doc.roundedRect(x, y, cardW, 22, 2, 2, "F");
+        
+        doc.setFontSize(7);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...cores.suave);
+        doc.text(c.label, x + 4, y + 6);
+        
+        doc.setFontSize(11);
+        doc.setTextColor(...(c.color || cores.accent));
+        doc.text(c.val, x + 4, y + 13);
+        
+        doc.setFontSize(6);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(...cores.suave);
+        doc.text(c.sub, x + 4, y + 18);
       });
-      y += 30;
 
-      // 2. Tabela de Vendas (NOME CURTO + CPF)
+      y += 35;
+
+      // --- 2. TABELA DE VENDAS (DESIGN CLEAN) ---
       if (vendasFiltradas.length > 0) {
-        if (y > pageHeight - 40) { doc.addPage(); y = adicionarCabecalhoPagina(); }
-        doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.setTextColor(...cores.primaria);
-        doc.text(`Detalhamento de Vendas`, 20, y); y += 6;
-        
-        doc.setFillColor(...cores.primaria); doc.rect(20, y, pageWidth - 40, 6, "F");
-        doc.setTextColor(255, 255, 255); doc.setFontSize(8);
-        doc.text("Data/Hora", 25, y + 4); 
-        doc.text("Atendente (CPF)", 62, y + 4); // <--- Cabeçalho ajustado
-        doc.text("Pagamento", 110, y + 4); 
-        doc.text("Total", pageWidth - 25, y + 4, { align: "right" });
-        y += 10;
-        
-        doc.setTextColor(...cores.primaria); doc.setFont("helvetica", "normal");
-        vendasFiltradas.forEach(v => {
-          if (y > pageHeight - 15) { doc.addPage(); y = adicionarCabecalhoPagina(); }
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...cores.accent);
+        doc.text("DETALHAMENTO DE VENDAS", margin, y);
+        y += 6;
+
+        // Header da Tabela
+        doc.setFillColor(...cores.accent);
+        doc.roundedRect(margin, y, pageWidth - (margin * 2), 8, 1, 1, "F");
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(8);
+        doc.text("DATA/HORA", margin + 4, y + 5.5);
+        doc.text("ATENDENTE", margin + 45, y + 5.5);
+        doc.text("PAGAMENTO", margin + 95, y + 5.5);
+        doc.text("TOTAL", pageWidth - margin - 4, y + 5.5, { align: "right" });
+        y += 13;
+
+        doc.setTextColor(...cores.texto);
+        vendasFiltradas.forEach((v, i) => {
+          checkPage(10);
+          doc.setFont("helvetica", "normal");
+          const dt = new Date(v.data_hora || v.data_venda).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+          doc.text(dt, margin + 4, y);
+          doc.text(formatarIdentificacaoPDF(v.nome_atendente, v.cpf_atendente).substring(0, 22), margin + 45, y);
           
-          const dataV = new Date(v.data_hora || v.data_venda).toLocaleString('pt-BR');
-          doc.text(dataV, 25, y);
+          const metodos = (v.pagamentos || []).map(p => p.metodo).join(', ');
+          doc.text(metodos.substring(0, 25), margin + 95, y);
           
-          // Formatação solicitada: Primeiro nome + CPF mascarado
-          const identFunc = formatarIdentificacaoPDF(v.nome_atendente, v.cpf_atendente || v.cpf);
-          doc.text(identFunc, 62, y);
+          doc.setFont("helvetica", "bold");
+          doc.text(`R$ ${parseFloat(v.valor_total_bruto).toFixed(2).replace('.', ',')}`, pageWidth - margin - 4, y, { align: "right" });
           
-          const pag = (v.pagamentos || []).map(p => p.metodo).join(', ');
-          doc.text(pag.substring(0, 30), 110, y);
-          
-          doc.text(`R$ ${parseFloat(v.valor_total_bruto).toFixed(2).replace('.', ',')}`, pageWidth - 25, y, { align: "right" });
+          y += 4;
+          doc.setDrawColor(...cores.linha);
+          doc.line(margin + 2, y, pageWidth - margin - 2, y);
           y += 6;
         });
-        y += 10;
       }
 
-      // 3. Tabela de Retiradas
+      // --- 3. RETIRADAS ---
       if (retiradasFiltradas.length > 0) {
-        if (y > pageHeight - 40) { doc.addPage(); y = adicionarCabecalhoPagina(); }
-        doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.text(`Retiradas de Caixa`, 20, y); y += 6;
-        doc.setFillColor(...cores.alerta); doc.rect(20, y, pageWidth - 40, 6, "F");
-        doc.setTextColor(255, 255, 255); doc.setFontSize(8);
-        doc.text("Data", 25, y + 4); doc.text("Motivo", 70, y + 4); doc.text("Valor", pageWidth - 25, y + 4, { align: "right" });
-        y += 10;
-        doc.setTextColor(...cores.primaria); doc.setFont("helvetica", "normal");
+        y += 5;
+        checkPage(30);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("RETIRADAS DE CAIXA", margin, y);
+        y += 6;
+
         retiradasFiltradas.forEach(r => {
-          if (y > pageHeight - 15) { doc.addPage(); y = adicionarCabecalhoPagina(); }
-          const dr = new Date(r.data_retirada || r.data_corrigida);
-          doc.text(dr.toLocaleDateString('pt-BR'), 25, y);
-          doc.text(r.motivo.substring(0, 45), 70, y);
-          doc.text(`R$ ${parseFloat(r.valor).toFixed(2).replace('.', ',')}`, pageWidth - 25, y, { align: "right" });
-          y += 6;
+          checkPage(10);
+          doc.setFillColor(255, 245, 245);
+          doc.rect(margin, y - 4, pageWidth - (margin * 2), 7, "F");
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(8);
+          const dr = new Date(r.data_retirada).toLocaleDateString('pt-BR');
+          doc.text(`${dr} - ${r.motivo}`, margin + 4, y + 0.5);
+          doc.setFont("helvetica", "bold");
+          doc.setTextColor(...cores.negativo);
+          doc.text(`- R$ ${parseFloat(r.valor).toFixed(2).replace('.', ',')}`, pageWidth - margin - 4, y + 0.5, { align: "right" });
+          doc.setTextColor(...cores.texto);
+          y += 9;
         });
-        y += 10;
       }
 
-      // 4. Seção de Observações Diárias
-      if (observacoes && observacoes.length > 0) {
-        if (y > pageHeight - 30) { doc.addPage(); y = adicionarCabecalhoPagina(); }
-        
-        doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.setTextColor(...cores.destaque);
-        doc.text("Observações do Período", 20, y);
+      // --- 4. NOTAS ---
+      if (observacoes?.length > 0) {
+        y += 5;
+        checkPage(30);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("NOTAS E OBSERVAÇÕES", margin, y);
         y += 8;
 
-        observacoes.forEach((obs) => {
-          const textoProcessado = processarHtmlParaTexto(obs.texto);
-          const partes = obs.data_observacao.split('T')[0].split('-');
-          const dataNota = `${partes[2]}/${partes[1]}/${partes[0]}`;
-
-          if (y > pageHeight - 15) { doc.addPage(); y = adicionarCabecalhoPagina(); }
-          doc.setFontSize(9); doc.setFont("helvetica", "bold");
-          doc.setTextColor(...cores.primaria);
-          doc.text(`DATA: ${dataNota}`, 20, y);
-          y += 6;
-
+        observacoes.forEach(obs => {
+          const txt = processarHtmlParaTexto(obs.texto);
+          const lines = doc.splitTextToSize(txt, pageWidth - (margin * 2) - 10);
+          checkPage(lines.length * 5 + 10);
+          
+          doc.setDrawColor(...cores.accent);
+          doc.setLineWidth(0.5);
+          doc.line(margin, y - 4, margin, y + (lines.length * 5)); // Linha vertical de destaque
+          
+          doc.setFontSize(8);
+          doc.setFont("helvetica", "bold");
+          doc.text(new Date(obs.data_observacao).toLocaleDateString('pt-BR'), margin + 5, y);
+          y += 5;
           doc.setFont("helvetica", "normal");
-          doc.setTextColor(...cores.secundaria);
-          const linhasObs = doc.splitTextToSize(textoProcessado, pageWidth - 40);
-          
-          linhasObs.forEach((linha) => {
-            if (y > pageHeight - margemInferior) {
-              doc.addPage();
-              y = adicionarCabecalhoPagina();
-              doc.setFontSize(8); doc.setFont("helvetica", "italic");
-              doc.text(`(continuação nota ${dataNota})`, 20, y);
-              y += 6;
-              doc.setFontSize(9); doc.setFont("helvetica", "normal");
-            }
-            doc.text(linha, 25, y);
-            y += 5; 
-          });
-          
-          y += 5; 
+          doc.setTextColor(...cores.suave);
+          doc.text(lines, margin + 5, y);
+          y += (lines.length * 5) + 5;
         });
       }
 
+      // Rodapé com numeração
       const totalPaginas = doc.internal.getNumberOfPages();
       for (let i = 1; i <= totalPaginas; i++) {
         doc.setPage(i);
-        doc.setFontSize(8); doc.setTextColor(...cores.secundaria);
-        doc.text(`Página ${i} de ${totalPaginas}`, pageWidth / 2, pageHeight - 10, { align: "center" });
+        doc.setFontSize(7);
+        doc.setTextColor(...cores.suave);
+        doc.text(`Documento gerado em ${new Date().toLocaleString()} — Página ${i} de ${totalPaginas}`, pageWidth / 2, pageHeight - 10, { align: "center" });
       }
 
-      const sufixo = (filtroDataInicio || filtroDataFim) ? `${filtroDataInicio || 'ini'}_a_${filtroDataFim || 'fim'}` : 'geral';
-      doc.save(`relatorio_financeiro_${sufixo}.pdf`);
-
-    } catch (error) { 
-      console.error("Erro ao gerar PDF:", error); 
-    } finally { 
-      setGerandoPDF(false); 
+      doc.save(`Relatorio_${filtroDataInicio || 'Geral'}.pdf`);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setGerandoPDF(false);
     }
   };
 

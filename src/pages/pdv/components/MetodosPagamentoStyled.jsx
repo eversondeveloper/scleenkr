@@ -59,7 +59,7 @@ export const MetodosPagamentoStyled = styled.div`
     overflow-x: hidden;
   }
 
-  /* --- LAYOUTS HORIZONTAIS (DINHEIRO E MISTO) --- */
+  /* --- LAYOUTS HORIZONTAIS --- */
   .layout-dinheiro-horizontal,
   .layout-misto-horizontal {
     display: flex;
@@ -68,7 +68,6 @@ export const MetodosPagamentoStyled = styled.div`
     justify-content: center;
     align-items: flex-start;
     width: 100%;
-    height: 100%;
   }
 
   .coluna-input-principal,
@@ -81,148 +80,89 @@ export const MetodosPagamentoStyled = styled.div`
     gap: 12px;
   }
 
-  /* --- COLUNA DE VALORES RÁPIDOS --- */
-  .coluna-cedulas-rapidas {
-    flex: 1;
-    min-width: 220px;
-    max-width: 300px;
-    background: #181818;
-    padding: 12px;
-    border-radius: 14px;
-    border: 1px solid #282828;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
   .label-moderna { 
     font-size: 10px; 
     color: #4caf50; 
     font-weight: 800; 
-    text-align: center; 
     text-transform: uppercase;
+    margin-bottom: 4px;
   }
 
-  /* --- SELETOR PADRONIZADO (IGUAL AO CARRINHO) --- */
+  /* --- SELETOR PADRONIZADO (MÁSCARA MONETÁRIA) --- */
   .seletor-valor-pill {
     display: flex;
     align-items: center;
     background: #0a0a0a;
     border-radius: 20px;
     border: 1px solid #222;
-    padding: 2px 5px;
+    padding: 2px;
     height: 50px;
 
-    .btn-ajuste, .btn-ajuste-p { 
+    button { 
       background: transparent;
       border: none;
       color: #4caf50;
       font-weight: bold;
       cursor: pointer;
-      width: 40px;
-      height: 40px;
+      width: 45px;
+      height: 100%;
       font-size: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: color 0.2s;
-
       &:hover { color: #64ff8a; }
+      &:active { transform: scale(0.9); }
     }
 
     input { 
       flex: 1; 
-      min-width: 0; 
-      background: transparent; 
-      border: none; 
-      color: #fff;
+      width: 100%;
+      background: transparent !important; 
+      border: none !important; 
+      color: #fff !important;
       text-align: center; 
-      font-size: 20px; 
+      font-size: 18px; 
       font-weight: 700; 
       outline: none; 
-
-      -moz-appearance: textfield;
-      &::-webkit-outer-spin-button, &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     }
   }
 
-  .acoes-sugestao-container {
-    display: flex;
-    gap: 8px;
-    .btn-sugestao {
-      flex: 1; height: 40px; border-radius: 10px; border: none; font-weight: 800; font-size: 10px; cursor: pointer;
-      transition: transform 0.1s;
-      &:active { transform: scale(0.95); }
-      &.exato { background: #1b5e20; color: #64ff8a; }
-      &.arredondar { background: #0d47a1; color: #64b5f6; }
-    }
+  .seletor-valor-pill.pequeno {
+    height: 36px;
+    max-width: 130px;
+    button { width: 30px; font-size: 16px; }
+    input { font-size: 13px; }
   }
 
-  /* --- GRADE DE VALORES (MOEDAS E NOTAS) --- */
-  .grade-cedulas {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
-    gap: 6px;
-  }
-
-  .btn-cedula-rapida {
-    height: 38px;
-    background: #1a1a1a;
-    border: 1px solid #252525;
-    border-radius: 8px;
-    color: #888;
-    font-weight: 800;
-    font-size: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover { background: #333; border-color: #4caf50; color: #64ff8a; }
-    &:active { transform: scale(0.92); }
-
-    &.limpar {
-      grid-column: 1 / -1;
-      background: #2a1a1a;
-      color: #ff5252;
-      border-color: #4a2121;
-      font-size: 9px;
-      margin-top: 4px;
-      &:hover { background: #ff5252; color: #fff; }
-    }
-  }
-
-  /* --- MISTO PADRONIZADO --- */
-  .card-pagamento-misto { height: 100%; width: 100%; }
-  
+  /* --- MISTO - BOTÃO ADICIONAR (RESTAURADO) --- */
   .cabecalho-misto-moderno { 
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
     margin-bottom: 10px; 
-    h4 { color: #888; font-size: 11px; margin: 0; } 
+    h4 { color: #888; font-size: 11px; margin: 0; font-weight: 800; } 
   }
   
   .btn-adicionar-metodo-misto { 
-    background: #4caf50; 
-    color: #000; 
-    border: none; 
-    padding: 5px 12px; 
-    border-radius: 8px; 
-    font-size: 10px; 
-    font-weight: 900; 
-    cursor: pointer; 
+    background: #4caf50 !important; 
+    color: #000 !important; 
+    border: none !important; 
+    padding: 6px 12px !important; 
+    border-radius: 8px !important; 
+    font-size: 10px !important; 
+    font-weight: 900 !important; 
+    cursor: pointer !important;
+    text-transform: uppercase;
+    transition: background 0.2s;
+    &:hover { background: #64ff8a !important; }
     &:active { transform: scale(0.95); }
   }
 
+  /* --- LISTA E CARDS MISTOS --- */
   .lista-itens-mistos {
-    flex: 1; 
-    overflow-y: auto; 
     display: flex; 
     flex-direction: column; 
     gap: 8px;
-    max-height: 280px;
-    padding-right: 4px;
-    &::-webkit-scrollbar { width: 4px; }
-    &::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
   }
 
   .item-misto-card {
@@ -241,26 +181,64 @@ export const MetodosPagamentoStyled = styled.div`
       color: #fff; 
       padding: 8px; 
       border-radius: 10px; 
-      font-size: 11px; 
+      font-size: 11px;
       outline: none;
       &:focus { border-color: #4caf50; }
     }
+  }
 
-    .seletor-valor-pill.pequeno { 
-      height: 38px; 
-      width: 120px; 
-      .btn-ajuste-p { width: 30px; height: 30px; font-size: 16px; } 
-      input { font-size: 13px; } 
+  .btn-remover-misto { 
+    background: transparent; border: none; color: #444; cursor: pointer; font-size: 16px;
+    &:hover { color: #ff5252; }
+  }
+
+  /* --- COLUNA DE VALORES RÁPIDOS --- */
+  .coluna-cedulas-rapidas {
+    flex: 1;
+    min-width: 220px;
+    max-width: 300px;
+    background: #181818;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid #282828;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .grade-cedulas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(65px, 1fr));
+    gap: 6px;
+  }
+
+  .btn-cedula-rapida {
+    height: 38px;
+    background: #1a1a1a;
+    border: 1px solid #252525;
+    border-radius: 8px;
+    color: #888;
+    font-weight: 800;
+    font-size: 10px;
+    cursor: pointer;
+    &:hover { background: #333; border-color: #4caf50; color: #64ff8a; }
+    &.limpar {
+      grid-column: 1 / -1;
+      background: #2a1a1a;
+      color: #ff5252;
+      border-color: #4a2121;
+      &:hover { background: #ff5252; color: #fff; }
     }
+  }
 
-    .btn-remover-misto { 
-      background: transparent; 
-      border: none; 
-      color: #444; 
-      cursor: pointer; 
-      font-size: 16px; 
-      transition: color 0.2s;
-      &:hover { color: #ff5252; }
+  .acoes-sugestao-container {
+    display: flex;
+    gap: 8px;
+    margin-top: 5px;
+    .btn-sugestao {
+      flex: 1; height: 40px; border-radius: 10px; border: none; font-weight: 800; font-size: 10px; cursor: pointer;
+      &.exato { background: #1b5e20; color: #64ff8a; }
+      &.arredondar { background: #0d47a1; color: #64b5f6; }
     }
   }
 
@@ -275,14 +253,12 @@ export const MetodosPagamentoStyled = styled.div`
       color: #888; 
       margin-bottom: 5px;
       strong { color: #fff; }
-      .completo { color: #64ff8a; font-weight: bold; }
-      .pendente { color: #ff5252; font-weight: bold; }
     }
   }
 
   .status-metodo-simples {
     text-align: center; margin: auto;
-    p { color: #888; font-size: 13px; margin-bottom: 10px; }
+    p { color: #888; font-size: 13px; }
     h2 { font-size: 32px; font-weight: 800; color: #fff; }
   }
 `;

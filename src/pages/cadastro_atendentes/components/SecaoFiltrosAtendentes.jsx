@@ -7,108 +7,117 @@ export const SecaoFiltrosAtendentes = ({
   setFiltroAtivo,
   onLimparFiltros
 }) => {
+  // Estilo padronizado para os inputs conforme sua paleta
+  const inputStyle = {
+    padding: '10px 12px',
+    backgroundColor: '#1e1e1e', // Ultra escuro
+    color: '#E0E0E0',
+    border: '1px solid #444',
+    borderRadius: '4px',
+    fontSize: '14px',
+    width: '100%',
+    outline: 'none',
+    marginTop: '5px'
+  };
+
+  const labelStyle = {
+    color: '#A0A0A0',
+    fontSize: '13px',
+    fontWeight: '300'
+  };
+
   return (
-    <div className="card secao-filtros">
-      <div className="titulo-secao">
-        🔍 Filtros
+    <div className="secao-filtros" style={{ backgroundColor: '#2d2d2d', padding: '20px', borderRadius: '8px' }}>
+      <div className="titulo-secao" style={{ color: '#FF9800', fontSize: '16px', fontWeight: '500', marginBottom: '5px' }}>
+        🔍 Filtros de Busca
       </div>
-      <p style={{ color: '#888', margin: '0 0 15px 0', fontSize: '14px' }}>
-        Filtre os atendentes por nome e status
+      <p style={{ color: '#888', margin: '0 0 20px 0', fontSize: '13px' }}>
+        Filtre os atendentes por nome e status para uma gestão mais rápida.
       </p>
 
-      <div className="filtros-linha">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '20px', alignItems: 'end' }}>
         {/* Filtro por Nome */}
-        <div className="grupo-filtro">
-          <div className="input-group">
-            <label htmlFor="filtro-nome">Buscar por nome</label>
-            <input
-              id="filtro-nome"
-              type="text"
-              value={filtroNome}
-              onChange={(e) => setFiltroNome(e.target.value)}
-              placeholder="Digite o nome do atendente..."
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237f8c8d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='m21 21-4.3-4.3'%3E%3C/path%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: '12px center',
-                backgroundSize: '16px',
-                paddingLeft: '40px'
-              }}
-            />
-          </div>
+        <div className="input-group">
+          <label htmlFor="filtro-nome" style={labelStyle}>Buscar por nome</label>
+          <input
+            id="filtro-nome"
+            type="text"
+            value={filtroNome}
+            onChange={(e) => setFiltroNome(e.target.value)}
+            placeholder="Digite o nome..."
+            style={inputStyle}
+            onFocus={(e) => e.target.style.borderColor = '#FF9800'}
+            onBlur={(e) => e.target.style.borderColor = '#444'}
+          />
         </div>
 
         {/* Filtro por Status */}
-        <div className="grupo-filtro">
-          <div className="input-group">
-            <label htmlFor="filtro-status">Status</label>
-            <select
-              id="filtro-status"
-              value={filtroAtivo}
-              onChange={(e) => setFiltroAtivo(e.target.value)}
-            >
-              <option value="todos">Todos os status</option>
-              <option value="ativos">Apenas ativos</option>
-              <option value="inativos">Apenas inativos</option>
-            </select>
-          </div>
+        <div className="input-group">
+          <label htmlFor="filtro-status" style={labelStyle}>Status do Cadastro</label>
+          <select
+            id="filtro-status"
+            value={filtroAtivo}
+            onChange={(e) => setFiltroAtivo(e.target.value)}
+            style={inputStyle}
+            onFocus={(e) => e.target.style.borderColor = '#FF9800'}
+            onBlur={(e) => e.target.style.borderColor = '#444'}
+          >
+            <option value="todos">Todos os status</option>
+            <option value="ativos">Apenas ativos</option>
+            <option value="inativos">Apenas inativos</option>
+          </select>
         </div>
 
         {/* Botão Limpar Filtros */}
-        <div className="grupo-filtro" style={{ display: 'flex', alignItems: 'flex-end' }}>
-          <button
-            className="btn-secundario"
-            onClick={onLimparFiltros}
-            disabled={!filtroNome && filtroAtivo === 'todos'}
-            style={{
-              width: '100%',
-              opacity: (!filtroNome && filtroAtivo === 'todos') ? 0.6 : 1
-            }}
-          >
-            🗑️ Limpar Filtros
-          </button>
-        </div>
+        <button
+          onClick={onLimparFiltros}
+          disabled={!filtroNome && filtroAtivo === 'todos'}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#444',
+            color: '#E0E0E0',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            height: '40px',
+            fontSize: '13px',
+            transition: '0.2s',
+            opacity: (!filtroNome && filtroAtivo === 'todos') ? 0.5 : 1
+          }}
+          onMouseOver={(e) => !e.target.disabled && (e.target.style.backgroundColor = '#555')}
+          onMouseOut={(e) => !e.target.disabled && (e.target.style.backgroundColor = '#444')}
+        >
+          Limpar Filtros
+        </button>
       </div>
 
-      {/* Indicadores de Filtros Ativos */}
+      {/* Badge de Filtros Ativos */}
       {(filtroNome || filtroAtivo !== 'todos') && (
         <div style={{ 
-          marginTop: '15px',
-          padding: '10px 15px',
-          backgroundColor: '#3b3b3b',
-          border: '1px solid #FF9800',
-          borderRadius: '6px',
-          fontSize: '0.9rem'
+          marginTop: '20px',
+          padding: '12px',
+          backgroundColor: '#1e1e1e',
+          borderLeft: '4px solid #FF9800',
+          borderRadius: '4px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <strong style={{ color: '#BACBD9' }}>Filtros ativos:</strong>
-              {filtroNome && (
-                <span style={{ marginLeft: '10px', color: '#FF9800' }}>
-                  📝 Nome: "{filtroNome}"
-                </span>
-              )}
-              {filtroAtivo !== 'todos' && (
-                <span style={{ marginLeft: '10px', color: '#FF9800' }}>
-                  {filtroAtivo === 'ativos' ? '✅ Ativos' : '❌ Inativos'}
-                </span>
-              )}
-            </div>
-            
-            <button
-              onClick={onLimparFiltros}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#FF9800',
-                cursor: 'pointer',
-                fontSize: '0.8rem',
-                textDecoration: 'underline'
-              }}
-            >
-              Limpar
-            </button>
+          <div style={{ fontSize: '13px' }}>
+            <span style={{ color: '#888' }}>Filtros ativos: </span>
+            {filtroNome && <span style={{ color: '#FF9800', marginLeft: '10px' }}>Nome: "{filtroNome}"</span>}
+            {filtroAtivo !== 'todos' && (
+              <span style={{ color: '#64ff8a', marginLeft: '10px' }}>
+                Status: {filtroAtivo === 'ativos' ? 'Ativos' : 'Inativos'}
+              </span>
+            )}
           </div>
+          <button
+            onClick={onLimparFiltros}
+            style={{ background: 'none', border: 'none', color: '#E53935', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}
+          >
+            REMOVER TODOS
+          </button>
         </div>
       )}
     </div>

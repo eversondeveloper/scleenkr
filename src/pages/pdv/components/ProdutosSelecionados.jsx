@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { useGerarOrcamento } from "../hooks/useGerarOrcamento";
 import somCancelar from "/sounds/efeitos/desselecionar.mp3";
 import { ProdutosSelecionadosStyled } from "./ProdutosSelecionadosStyled";
+import { formatarParaReal } from "../hooks/useVendas";
 
 const ProdutosSelecionados = ({
   produtosSelecionados,
@@ -22,7 +23,6 @@ const ProdutosSelecionados = ({
   const somCancelaRef = useRef(new Audio(somCancelar));
   const listaRef = useRef(null);
 
-  // Auto-scroll para o último item adicionado
   useEffect(() => {
     if (listaRef.current) {
       listaRef.current.scrollTop = listaRef.current.scrollHeight;
@@ -70,33 +70,20 @@ const ProdutosSelecionados = ({
     [produtosSelecionados, handleQuantidadeChange, removerProduto]
   );
 
-  /**
-   * Lógica Inteligente de Quantidade:
-   * Se a quantidade atual for 1 (valor inicial padrão), o botão substitui o valor.
-   * Se a quantidade for diferente de 1, o botão soma ao valor existente.
-   */
   const handleAjusteInteligente = useCallback(
     (idUnico, valorBotao) => {
       const produto = produtosSelecionados.find((p) => p.idUnico === idUnico);
       if (!produto) return;
-
       const quantidadeAtual = parseFloat(produto.quantidade) || 0;
       
       if (quantidadeAtual === 1) {
-        // Primeiro clique após adicionar: substitui o 1 inicial
         handleQuantidadeChange(idUnico, valorBotao);
       } else {
-        // Cliques subsequentes: soma ao valor que já está lá
         handleQuantidadeChange(idUnico, quantidadeAtual + valorBotao);
       }
     },
     [produtosSelecionados, handleQuantidadeChange]
   );
-
-  const totalFormatado = parseFloat(totalGeral || 0).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  });
 
   return (
     <ProdutosSelecionadosStyled>
@@ -167,7 +154,6 @@ const ProdutosSelecionados = ({
                       <button type="button" onClick={() => { handleAjusteQuantidade(produto.idUnico, 1); somClick(); }}>+</button>
                     </div>
                     
-                    {/* Atalhos de quantidade inteligente (Substitui se 1, Soma se > 1) */}
                     <div className="atalhos-quantidade">
                       <button type="button" onClick={() => { handleAjusteInteligente(produto.idUnico, 5); somClick(); }}>5</button>
                       <button type="button" onClick={() => { handleAjusteInteligente(produto.idUnico, 10); somClick(); }}>10</button>
@@ -176,8 +162,8 @@ const ProdutosSelecionados = ({
                   </div>
                   
                   <div className="precos-item-container">
-                    <span className="unitario-label">Un: R$ {valorItem.toFixed(2)}</span>
-                    <strong className="subtotal-item">R$ {totalDoItem.toFixed(2).replace(".", ",")}</strong>
+                    <span className="unitario-label">Un: R$ {formatarParaReal(valorItem)}</span>
+                    <strong className="subtotal-item">R$ {formatarParaReal(totalDoItem)}</strong>
                   </div>
                 </div>
               </div>
@@ -190,7 +176,7 @@ const ProdutosSelecionados = ({
         <div className="rodape-carrinho">
           <div className="linha-total-geral">
             <span>TOTAL</span>
-            <strong>{totalFormatado}</strong>
+            <strong>R$ {formatarParaReal(totalGeral)}</strong>
           </div>
           <button
             type="button"
@@ -240,7 +226,7 @@ const ProdutosSelecionados = ({
               <div className="resumo-total-modal">
                 <div className="info-total">
                   <span>TOTAL ESTIMADO:</span>
-                  <strong>{totalFormatado}</strong>
+                  <strong>R$ {formatarParaReal(totalGeral)}</strong>
                 </div>
                 <p className="dica-validade">Válido por 30 dias após a emissão</p>
               </div>
