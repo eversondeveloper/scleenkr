@@ -24,9 +24,11 @@ const ResumoVenda = ({
     return metodosUsadosMisto.map((p) => p.metodo).join(" + ");
   };
 
-  const vendaIniciada = totalGeral > 0.001;
-  const temPendencia = valorFaltando > 0.001;
-  const temTroco = valorTroco > 0.001;
+  const vendaIniciada = totalGeral > 0;
+  const valorFaltandoReal = Math.max(0, totalGeral - valorPagoTotal);
+  const temPendencia = valorFaltandoReal > 0.009;
+  const temTroco = valorTroco > 0.009;
+  const pagoIntegralmente = vendaIniciada && !temPendencia && valorPagoTotal >= (totalGeral - 0.009);
 
   return (
     <ResumoVendaStyled>
@@ -66,16 +68,20 @@ const ResumoVenda = ({
           ) : temPendencia ? (
             <div className="status-box pendente">
               <label>VALOR RESTANTE</label>
-              <div className="resultado-valor">R$ {formatarParaReal(valorFaltando)}</div>
+              <div className="resultado-valor">R$ {formatarParaReal(valorFaltandoReal)}</div>
             </div>
           ) : temTroco ? (
             <div className="status-box troco">
               <label>TROCO</label>
               <div className="resultado-valor">R$ {formatarParaReal(valorTroco)}</div>
             </div>
-          ) : (
+          ) : pagoIntegralmente ? (
             <div className="status-box pago">
               <div className="resultado-texto">PAGO INTEGRALMENTE</div>
+            </div>
+          ) : (
+            <div className="status-box aguardando">
+              <div className="resultado-texto" style={{ color: "#aaa" }}>AGUARDANDO PAGAMENTO...</div>
             </div>
           )}
         </div>

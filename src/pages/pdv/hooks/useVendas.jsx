@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import somCancelar from "/sounds/efeitos/cancelar1.mp3";
 import somFinalizar from "/sounds/efeitos/printer2.mp3";
@@ -20,7 +19,6 @@ export const limparFormatacao = (stringFormatada) => {
 };
 
 export const useVendas = (sessaoAtual) => {
-  // 1. ESTADOS
   const [produtosDB, setProdutosDB] = useState([]);
   const [produtosSelecionados, setProdutosSelecionados] = useState([]);
   const [valorDinheiroRecebido, setValorDinheiroRecebido] = useState(0);
@@ -34,23 +32,20 @@ export const useVendas = (sessaoAtual) => {
     { id: 2, metodo: "Crédito", valor: 0 },
   ]);
 
-  // 2. REFS
   const audioFinalizar = useRef(new Audio(somFinalizar));
   const audioCancelar = useRef(new Audio(somCancelar));
   const inputFiltroBuscaRef = useRef(null);
   const inputValorRecebidoRef = useRef(null);
   const botaoFinalizarRef = useRef(null);
 
-  // 3. CÁLCULOS BÁSICOS (ESTES NÃO DEPENDEM DE OUTROS MEMOS)
   const totalGeral = useMemo(
     () => produtosSelecionados.reduce((acc, p) => acc + parseFloat(p.preco || 0) * p.quantidade, 0),
     [produtosSelecionados]
   );
 
-  // 4. CÁLCULOS DEPENDENTES DO totalGeral
   const valorPagoTotal = useMemo(() => {
     if (totalGeral === 0) return 0;
-    if (metodoPagamento === "Misto") return pagamentosMistos.reduce((acc, p) => acc + p.valor, 0);
+    if (metodoPagamento === "Misto") return pagamentosMistos.reduce((acc, p) => acc + (parseFloat(p.valor) || 0), 0);
     if (["Crédito", "Débito", "Pix"].includes(metodoPagamento)) return totalGeral;
     return valorDinheiroRecebido;
   }, [metodoPagamento, valorDinheiroRecebido, pagamentosMistos, totalGeral]);
@@ -61,33 +56,15 @@ export const useVendas = (sessaoAtual) => {
     return valorPagoTotal - totalGeral;
   }, [valorPagoTotal, totalGeral, metodoPagamento]);
 
-  const sugestoesTroco = useMemo(() => {
-    if (totalGeral <= 0) return [2, 5, 10, 20, 50, 100];
-    const notas = [2, 5, 10, 20, 50, 100];
-    const sugestoes = new Set();
-    sugestoes.add(Math.round((totalGeral + Number.EPSILON) * 100) / 100);
-    notas.forEach(nota => {
-      if (nota > totalGeral) sugestoes.add(nota);
-      if (nota + 10 > totalGeral && nota + 10 < totalGeral + 50) sugestoes.add(nota + 10);
-    });
-    return Array.from(sugestoes).sort((a, b) => a - b).slice(0, 8);
-  }, [totalGeral]);
-
   const podeFinalizarVenda = useMemo(() => {
     if (!sessaoAtual || totalGeral <= 0) return false;
     if (["Crédito", "Débito", "Pix"].includes(metodoPagamento)) return true;
-    return valorPagoTotal >= (totalGeral - 0.01);
+    return valorPagoTotal >= (totalGeral - 0.009);
   }, [totalGeral, metodoPagamento, valorPagoTotal, sessaoAtual]);
 
-  // 5. FUNÇÕES E CALLBACKS
   const somFinalizarVenda = () => {
     audioFinalizar.current.currentTime = 0;
     audioFinalizar.current.play().catch(() => {});
-  };
-
-  const somCancelarVenda = () => {
-    audioCancelar.current.currentTime = 0;
-    audioCancelar.current.play().catch(() => {});
   };
 
   const buscarProdutos = useCallback(async () => {
@@ -123,18 +100,32 @@ export const useVendas = (sessaoAtual) => {
     });
   }, [produtosDB, sessaoAtual]);
 
-  const processarBuscaDireta = useCallback((termo, limparInputCallback) => {
-    if (!termo || termo.trim() === "") return false;
-    const produtoEncontrado = produtosDB.find(p => 
-      p.id_produto.toString() === termo.trim() || (p.codigo_barras && p.codigo_barras === termo.trim())
+  const removerProduto = useCallback((idUnico) => {
+    setProdutosSelecionados(prev => prev.filter(p => p.idUnico !== idUnico));
+  }, []);
+
+  const handleQuantidadeChange = useCallback((idUnico, novaQuantidade) => {
+    setProdutosSelecionados(prev =>
+      prev.map(p => p.idUnico === idUnico ? { ...p, quantidade: Math.max(0, parseFloat(novaQuantidade) || 0) } : p)
     );
-    if (produtoEncontrado) {
-      adicionarProduto(produtoEncontrado);
-      if (limparInputCallback) limparInputCallback();
-      return true;
-    }
-    return false;
-  }, [produtosDB, adicionarProduto]);
+  }, []);
+
+  const adicionarPagamentoMisto = useCallback((metodo = "Pix", valor = 0) => {
+    setPagamentosMistos(prev => [
+      ...prev,
+      { id: Date.now(), metodo, valor }
+    ]);
+  }, []);
+
+  const removerPagamentoMisto = useCallback((id) => {
+    setPagamentosMistos(prev => prev.filter(p => p.id !== id));
+  }, []);
+
+  const atualizarPagamentoMisto = useCallback((id, novosDados) => {
+    setPagamentosMistos(prev =>
+      prev.map(p => p.id === id ? { ...p, ...novosDados } : p)
+    );
+  }, []);
 
   const resetarCaixa = useCallback(() => {
     setProdutosSelecionados([]);
@@ -143,6 +134,13 @@ export const useVendas = (sessaoAtual) => {
     setPagamentosMistos([{ id: 1, metodo: "Dinheiro", valor: 0 }, { id: 2, metodo: "Crédito", valor: 0 }]);
     setTimeout(() => inputFiltroBuscaRef.current?.focus(), 50);
   }, []);
+
+  const cancelarVenda = useCallback((limparFiltrosCallback) => {
+    audioCancelar.current.currentTime = 0;
+    audioCancelar.current.play().catch(() => {});
+    if (limparFiltrosCallback) limparFiltrosCallback();
+    resetarCaixa();
+  }, [resetarCaixa]);
 
   const finalizarVenda = useCallback(async (limparFiltrosCallback) => {
     if (!sessaoAtual) return;
@@ -187,9 +185,8 @@ export const useVendas = (sessaoAtual) => {
     } catch (error) {
       setMensagemFlutuante("❌ Erro de conexão.");
     }
-  }, [totalGeral, sessaoAtual, produtosSelecionados, pagamentosMistos, metodoPagamento, valorPagoTotal, valorTroco]);
+  }, [totalGeral, sessaoAtual, produtosSelecionados, pagamentosMistos, metodoPagamento, valorPagoTotal, valorTroco, resetarCaixa, buscarProdutos]);
 
-  // 6. EFEITOS
   useEffect(() => { buscarProdutos(); }, [buscarProdutos]);
 
   return {
@@ -198,8 +195,10 @@ export const useVendas = (sessaoAtual) => {
     metodoPagamento, setMetodoPagamento, valorOutroMetodo, setValorOutroMetodo,
     metodoSecundario, setMetodoSecundario, pagamentosMistos, 
     inputFiltroBuscaRef, inputValorRecebidoRef, botaoFinalizarRef, 
-    totalGeral, valorPagoTotal, valorTroco, sugestoesTroco,
-    podeFinalizarVenda, adicionarProduto, processarBuscaDireta, resetarCaixa, finalizarVenda,
+    totalGeral, valorPagoTotal, valorTroco,
+    podeFinalizarVenda, adicionarProduto, removerProduto, handleQuantidadeChange, 
+    adicionarPagamentoMisto, removerPagamentoMisto, atualizarPagamentoMisto,
+    resetarCaixa, finalizarVenda, cancelarVenda,
     formatarParaReal, limparFormatacao
   };
 };

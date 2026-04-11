@@ -1,8 +1,6 @@
-/* eslint-disable no-unused-vars */
 import { useVendas } from "./hooks/useVendas";
 import { useFiltros } from "./hooks/useFiltros";
 import { useAtalhos } from "./hooks/useAtalhos";
-// Removido useEmpresa daqui, pois agora usaremos a empresaGlobal que vem do App
 import { useOrganizacao } from "./hooks/useOrganizacao";
 import ToastMensagem from "./components/ToastMensagem";
 import FiltrosCatalogo from "./components/FiltrosCatalogo";
@@ -20,11 +18,9 @@ import somClickArquivoMenos from "/sounds/efeitos/selecionarmenos.mp3";
 
 const METODOS_NAVEGACAO = ["Dinheiro", "Crédito", "Débito", "Pix", "Misto"];
 
-// ADICIONADO empresaGlobal NAS PROPS
 export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGlobal }) {
   const navigate = useNavigate();
 
-  // --- ÁUDIOS ---
   const audioMetodos = useRef(new Audio(somMetodosPagamento));
   const audioClickProduto = useRef(new Audio(somClickArquivo));
   const audioClickProdutoMenos = useRef(new Audio(somClickArquivoMenos));
@@ -44,7 +40,6 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
     audioClickProdutoMenos.current.play().catch(() => {});
   }, []);
 
-  // --- HOOKS DE LÓGICA ---
   const {
     produtosDB,
     produtosSelecionados,
@@ -93,7 +88,6 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
 
   const { modoOrganizacao, setModoOrganizacao, OPCOES_ORGANIZACAO } = useOrganizacao();
 
-  // --- FUNÇÕES DE AÇÃO COM LIMPEZA ---
   const handleFinalizarVendaComLimpeza = useCallback(() => {
     finalizarVenda(() => {
       limparFiltros();
@@ -121,7 +115,6 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
     }
   }, [metodoPagamento, setMetodoPagamento, tocarSomMetodo, inputValorRecebidoRef]);
 
-  // --- ATALHOS ---
   useAtalhos({
     podeFinalizarVenda,
     finalizarVenda: handleFinalizarVendaComLimpeza,
@@ -135,7 +128,6 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
     inputValorRecebidoRef
   });
 
-  // --- 1. BLOQUEIO POR FALTA DE EMPRESA (NOVA TRAVA INSTANTÂNEA) ---
   if (!empresaGlobal) {
     return (
       <ComponenteVendasStyled>
@@ -157,7 +149,6 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
     );
   }
 
-  // --- 2. TELA DE BLOQUEIO (Sessão ou Atendentes) ---
   if (!temAtendentes || !sessaoAtual) {
     return (
       <ComponenteVendasStyled>
@@ -225,7 +216,7 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
               removerProduto={removerProduto}
               handleQuantidadeChange={handleQuantidadeChange}
               totalGeral={totalGeral}
-              dadosEmpresa={empresaGlobal} // Alterado para empresaGlobal
+              dadosEmpresa={empresaGlobal} 
               somClick={tocarSomProduto}
               somClickMenos={tocarSomProdutoMenos}
             />
@@ -235,11 +226,8 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
                 <MetodosPagamento
                   metodoPagamento={metodoPagamento}
                   setMetodoPagamento={setMetodoPagamento}
-                  metodoSecundario={metodoSecundario}
-                  setMetodoSecundario={setMetodoSecundario}
                   valorDinheiroRecebido={valorDinheiroRecebido}
                   setValorDinheiroRecebido={setValorDinheiroRecebido}
-                  valorOutroMetodo={valorOutroMetodo}
                   inputValorRecebidoRef={inputValorRecebidoRef}
                   pagamentosMistos={pagamentosMistos}
                   adicionarPagamentoMisto={adicionarPagamentoMisto}
@@ -248,6 +236,7 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
                   totalGeral={totalGeral}
                   somClick={tocarSomProduto}
                   somClickMenos={tocarSomProdutoMenos}
+                  onFinalizarVenda={handleFinalizarVendaComLimpeza}
                 />
               </div>
 

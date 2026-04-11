@@ -61,7 +61,9 @@ const ProdutosSelecionados = ({
       const novaQuantidade = Math.max(0, atual + delta);
       
       if (novaQuantidade > 0) {
-        handleQuantidadeChange(idUnico, novaQuantidade);
+        if (typeof handleQuantidadeChange === "function") {
+          handleQuantidadeChange(idUnico, novaQuantidade);
+        }
       } else {
         somCancel();
         removerProduto(idUnico);
@@ -76,10 +78,12 @@ const ProdutosSelecionados = ({
       if (!produto) return;
       const quantidadeAtual = parseFloat(produto.quantidade) || 0;
       
-      if (quantidadeAtual === 1) {
-        handleQuantidadeChange(idUnico, valorBotao);
-      } else {
-        handleQuantidadeChange(idUnico, quantidadeAtual + valorBotao);
+      if (typeof handleQuantidadeChange === "function") {
+        if (quantidadeAtual === 1) {
+          handleQuantidadeChange(idUnico, valorBotao);
+        } else {
+          handleQuantidadeChange(idUnico, quantidadeAtual + valorBotao);
+        }
       }
     },
     [produtosSelecionados, handleQuantidadeChange]
@@ -92,7 +96,10 @@ const ProdutosSelecionados = ({
           <h2>CARRINHO</h2>
           <button 
             className="btn-limpar-carrinho" 
-            onClick={() => window.confirm("Esvaziar carrinho?") && produtosSelecionados.forEach(p => removerProduto(p.idUnico))}
+            onClick={(e) => {
+                e.stopPropagation();
+                if(window.confirm("Esvaziar carrinho?")) produtosSelecionados.forEach(p => removerProduto(p.idUnico));
+            }}
             title="Limpar tudo"
           >
             LIMPAR
@@ -111,7 +118,9 @@ const ProdutosSelecionados = ({
           produtosSelecionados.map((produto) => {
             const valorItem = parseFloat(produto.preco) || 0;
             const totalDoItem = valorItem * produto.quantidade;
-            const valorParaExibir = valorTemp[produto.idUnico] ?? produto.quantidade.toString().replace(".", ",");
+            const valorParaExibir = valorTemp[produto.idUnico] !== undefined 
+                ? valorTemp[produto.idUnico] 
+                : produto.quantidade.toString().replace(".", ",");
 
             return (
               <div className="card-produto-selecionado" key={produto.idUnico}>
@@ -123,7 +132,11 @@ const ProdutosSelecionados = ({
                   <button 
                     type="button"
                     className="btn-remover-item" 
-                    onClick={() => { somCancel(); removerProduto(produto.idUnico); }}
+                    onClick={(e) => { 
+                        e.stopPropagation();
+                        somCancel(); 
+                        removerProduto(produto.idUnico); 
+                    }}
                     title="Remover item"
                   >
                     ✕
@@ -133,31 +146,56 @@ const ProdutosSelecionados = ({
                 <div className="controles-produto-baixo">
                   <div className="secao-quantidade-completa">
                     <div className="pill-seletor-quantidade">
-                      <button type="button" onClick={() => { handleAjusteQuantidade(produto.idUnico, -1); somClickMenos(); }}>-</button>
+                      <button 
+                        type="button" 
+                        onClick={(e) => { 
+                            e.stopPropagation();
+                            handleAjusteQuantidade(produto.idUnico, -1); 
+                            somClickMenos(); 
+                        }}
+                      >-</button>
                       <input
                         type="text"
                         className="input-quantidade-campo"
+                        inputMode="decimal"
                         value={valorParaExibir}
-                        onFocus={() => setValorTemp({ ...valorTemp, [produto.idUnico]: "" })}
-                        onBlur={() => {
-                          const n = { ...valorTemp };
-                          delete n[produto.idUnico];
-                          setValorTemp(n);
+                        onFocus={(e) => {
+                            e.stopPropagation();
+                            setValorTemp({ ...valorTemp, [produto.idUnico]: "" });
+                        }}
+                        onBlur={(e) => {
+                            e.stopPropagation();
+                            const n = { ...valorTemp };
+                            delete n[produto.idUnico];
+                            setValorTemp(n);
                         }}
                         onChange={(e) => {
+                          e.stopPropagation();
                           const val = e.target.value;
                           setValorTemp({ ...valorTemp, [produto.idUnico]: val });
                           const processado = val.replace(",", ".");
-                          if (processado !== "" && !isNaN(processado)) handleQuantidadeChange(produto.idUnico, processado);
+                          if (processado !== "" && !isNaN(processado)) {
+                              if (typeof handleQuantidadeChange === "function") {
+                                handleQuantidadeChange(produto.idUnico, parseFloat(processado));
+                              }
+                          }
                         }}
+                        onKeyDown={(e) => e.stopPropagation()}
                       />
-                      <button type="button" onClick={() => { handleAjusteQuantidade(produto.idUnico, 1); somClick(); }}>+</button>
+                      <button 
+                        type="button" 
+                        onClick={(e) => { 
+                            e.stopPropagation();
+                            handleAjusteQuantidade(produto.idUnico, 1); 
+                            somClick(); 
+                        }}
+                      >+</button>
                     </div>
                     
                     <div className="atalhos-quantidade">
-                      <button type="button" onClick={() => { handleAjusteInteligente(produto.idUnico, 5); somClick(); }}>5</button>
-                      <button type="button" onClick={() => { handleAjusteInteligente(produto.idUnico, 10); somClick(); }}>10</button>
-                      <button type="button" onClick={() => { handleAjusteInteligente(produto.idUnico, 50); somClick(); }}>50</button>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); handleAjusteInteligente(produto.idUnico, 5); somClick(); }}>5</button>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); handleAjusteInteligente(produto.idUnico, 10); somClick(); }}>10</button>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); handleAjusteInteligente(produto.idUnico, 50); somClick(); }}>50</button>
                     </div>
                   </div>
                   
@@ -190,8 +228,8 @@ const ProdutosSelecionados = ({
       )}
 
       {mostrarModalOrcamento && (
-        <div className="modal-overlay-moderno" onClick={(e) => e.target.className === 'modal-overlay-moderno' && setMostrarModalOrcamento(false)}>
-          <div className="modal-conteudo-moderno">
+        <div className="modal-overlay-moderno" onClick={(e) => setMostrarModalOrcamento(false)}>
+          <div className="modal-conteudo-moderno" onClick={(e) => e.stopPropagation()}>
             <div className="modal-cabecalho-moderno">
               <div className="titulo-modal">
                 <span className="icone-modal">📄</span>
@@ -208,7 +246,10 @@ const ProdutosSelecionados = ({
                     placeholder="Ex: João Silva" 
                     value={dadosCliente.nome} 
                     onChange={(e) => setDadosCliente({...dadosCliente, nome: e.target.value})} 
-                    onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+                    onKeyDown={(e) => {
+                        e.stopPropagation();
+                        if(e.key === "Enter") e.target.blur();
+                    }}
                     autoFocus
                   />
                 </div>
@@ -219,7 +260,10 @@ const ProdutosSelecionados = ({
                     placeholder="(00) 00000-0000" 
                     value={dadosCliente.telefone} 
                     onChange={(e) => setDadosCliente({...dadosCliente, telefone: e.target.value})} 
-                    onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+                    onKeyDown={(e) => {
+                        e.stopPropagation();
+                        if(e.key === "Enter") e.target.blur();
+                    }}
                   />
                 </div>
               </div>
