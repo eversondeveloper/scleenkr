@@ -110,31 +110,61 @@ export const TabelaVendasComponent = ({
                 
                 <td>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: '240px' }}>
-                    {/* Lista de Métodos com Referência */}
-                    {venda.pagamentos && Array.isArray(venda.pagamentos) && venda.pagamentos.map((p, idx) => (
-                      <div key={idx} style={{ 
-                        display: 'flex', 
-                        flexDirection: 'column',
-                        background: 'rgba(255,255,255,0.03)',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        borderLeft: '3px solid #444'
+                    
+                    {/* LISTAGEM DE PRODUTOS VENDIDOS - BLINDAGEM TOTAL */}
+                    {venda.itens && venda.itens.length > 0 && (
+                      <div style={{ 
+                        background: 'rgba(0,0,0,0.2)', 
+                        padding: '8px', 
+                        borderRadius: '4px', 
+                        border: '1px solid #333' 
                       }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                          <span style={{ color: '#aaa' }}>{p.metodo}:</span>
-                          <span style={{ color: '#fff', fontWeight: 'bold' }}>
-                            R$ {parseFloat(p.valor_pago || 0).toFixed(2).replace(".", ",")}
-                          </span>
-                        </div>
-                        {p.referencia_metodo && (
-                          <span style={{ fontSize: '10px', color: '#666', fontStyle: 'italic', marginTop: '2px' }}>
-                            Ref: {p.referencia_metodo}
-                          </span>
-                        )}
+                        <span style={{ fontSize: '10px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '4px', letterSpacing: '1px' }}>CONTEÚDO DA VENDA</span>
+                        {venda.itens.map((item, iIdx) => {
+                          // Se descricao_item for null ou undefined, usa o fallback. 
+                          // O toUpperCase() só é chamado se houver string.
+                          const nomeExibir = (item.descricao_item || "PRODUTO DESCONHECIDO").toString().toUpperCase();
+                          
+                          return (
+                            <div key={iIdx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', borderBottom: iIdx === venda.itens.length -1 ? 'none' : '1px solid #252525', padding: '2px 0' }}>
+                              <span style={{ color: '#cecece' }}>
+                                <strong style={{ color: '#64ff8a', marginRight: '5px' }}>{item.quantidade}x</strong> 
+                                {nomeExibir}
+                              </span>
+                              <span style={{ color: '#888' }}>R$ {parseFloat(item.subtotal || 0).toFixed(2).replace(".", ",")}</span>
+                            </div>
+                          );
+                        })}
                       </div>
-                    ))}
+                    )}
 
-                    {/* Resumo Consolidado com Quantidade de Itens */}
+                    {/* Lista de Métodos com Referência */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      {venda.pagamentos && Array.isArray(venda.pagamentos) && venda.pagamentos.map((p, idx) => (
+                        <div key={idx} style={{ 
+                          display: 'flex', 
+                          flexDirection: 'column',
+                          background: 'rgba(255,255,255,0.03)',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          borderLeft: '3px solid #444'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                            <span style={{ color: '#aaa' }}>{p.metodo}:</span>
+                            <span style={{ color: '#fff', fontWeight: 'bold' }}>
+                              R$ {parseFloat(p.valor_pago || 0).toFixed(2).replace(".", ",")}
+                            </span>
+                          </div>
+                          {p.referencia_metodo && (
+                            <span style={{ fontSize: '10px', color: '#666', fontStyle: 'italic', marginTop: '2px' }}>
+                              Ref: {p.referencia_metodo}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Resumo Consolidado */}
                     <div style={{ 
                       marginTop: '4px', 
                       padding: '8px', 
@@ -143,7 +173,7 @@ export const TabelaVendasComponent = ({
                       background: 'rgba(100, 255, 138, 0.05)'
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#888', marginBottom: '4px' }}>
-                        <span>Itens Vendidos: <strong>{venda.quantidade_itens || 0}</strong></span>
+                        <span>Itens: <strong>{venda.quantidade_itens || 0}</strong></span>
                         <span>Soma Bruta: R$ {parseFloat(venda.valor_pago_total || 0).toFixed(2).replace(".", ",")}</span>
                       </div>
                       

@@ -162,6 +162,8 @@ export const useVendas = (sessaoAtual) => {
       status_venda: 'Finalizada',
       itens: produtosSelecionados.map(i => ({
         id_produto: i.id_produto,
+        categoria: i.categoria || "Geral",
+        descricao: i.descricao || "PRODUTO SEM NOME",
         preco_unitario: i.preco || 0,
         quantidade: i.quantidade || 0,
         subtotal: (parseFloat(i.preco) * i.quantidade) || 0,

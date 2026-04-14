@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
 const URL_API_VENDAS = "http://localhost:3000/vendas";
-const URL_API_LIMPAR_PERIODO = "http://localhost:3000/limpar-dados/periodo";
+const URL_API_LIMPAR_PERIODO = "http://localhost:3000/vendas/deletar-periodo"; // Ajustado para bater com seu servidor.js
 const URL_API_LIMPAR_TOTAL = "http://localhost:3000/limpar-dados/total";
 
 export const useVendas = () => {
@@ -10,23 +10,29 @@ export const useVendas = () => {
   const [erro, setErro] = useState(null);
 
   /**
-   * Busca as vendas. O Backend agora retorna os dados completos (itens e pagamentos)
-   * em uma única chamada para evitar o problema de N+1 requisições.
+   * Busca as vendas. 
+   * Adicionei suporte a filtros de data que a sua API pode processar.
    */
   const buscarVendas = useCallback(async (inicio = null, fim = null) => {
     setCarregando(true);
     setErro(null);
     try {
-      const url = inicio && fim 
-        ? `${URL_API_VENDAS}?inicio=${inicio}&fim=${fim}` 
-        : URL_API_VENDAS;
+      // Construção da URL com Query Params para datas
+      let url = URL_API_VENDAS;
+      const params = new URLSearchParams();
+      if (inicio) params.append("inicio", inicio);
+      if (fim) params.append("fim", fim);
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
 
       const resposta = await fetch(url);
       if (!resposta.ok) throw new Error(`Erro HTTP: ${resposta.status}`);
 
       const dados = await resposta.json();
       
-      // Garantimos que dados seja um array
+      // O segredo está aqui: o backend retorna v.itens via subconsulta JSON
       setVendas(Array.isArray(dados) ? dados : []);
     } catch (error) {
       console.error("Erro ao carregar vendas:", error);
@@ -40,6 +46,8 @@ export const useVendas = () => {
     try {
       const resp = await fetch(`${URL_API_VENDAS}/${id}`, { method: "DELETE" });
       if (resp.ok) {
+        // Importante: Não passamos parâmetros aqui para recarregar a lista geral
+        // ou você pode manter os filtros atuais se preferir.
         await buscarVendas();
         return true;
       }
@@ -52,10 +60,11 @@ export const useVendas = () => {
 
   const deletarTudoPorPeriodo = useCallback(async (inicio, fim) => {
     try {
+      // Ajustei a rota para /vendas/deletar-periodo conforme seu servidor.js
       const resp = await fetch(URL_API_LIMPAR_PERIODO, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inicio, fim }),
+        body: JSON.stringify({ idsVendas: [] }), // Sua API espera idsVendas no corpo
       });
       
       if (resp.ok) {
@@ -77,7 +86,6 @@ export const useVendas = () => {
       
       if (resp.ok) {
         setVendas([]);
-        await buscarVendas();
         return true;
       }
       return false;
@@ -85,7 +93,7 @@ export const useVendas = () => {
       console.error("Erro ao limpar histórico total:", error);
       return false;
     }
-  }, [buscarVendas]);
+  }, []);
 
   const atualizarPagamentosVenda = useCallback(async (idVenda, novosPagamentos) => {
     try {
@@ -144,6 +152,7 @@ export const useVendas = () => {
     }
   }, [buscarVendas]);
 
+  // Carregamento inicial
   useEffect(() => {
     buscarVendas();
   }, [buscarVendas]);
