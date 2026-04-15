@@ -83,7 +83,7 @@ function App() {
       <header>
         <div className="logomenu">
           <Link to="/everscash/" className="logo" onClick={fecharMenu}>
-            EversCash
+            cleenkr
           </Link>
 
           {empresaSelecionada && (

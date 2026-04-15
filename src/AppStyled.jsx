@@ -30,7 +30,6 @@ export const AppStyled = styled.div`
   }
 
   .logo {
-    text-transform: uppercase;
     font-size: 18px;
     font-weight: bold;
     text-decoration: none;

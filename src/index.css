@@ -7,6 +7,10 @@
   user-select: none;
 }
 
+title{
+  color: #FF9509;
+}
+
 body {
   background-color: #1e1e1e;
   color: #333;
