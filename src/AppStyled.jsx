@@ -29,6 +29,11 @@ export const AppStyled = styled.div`
     justify-content: space-between;
   }
 
+  .logodiv{
+    height: 80%;
+    width: 130px;
+  }
+
   .logo {
     font-size: 18px;
     font-weight: bold;

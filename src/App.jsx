@@ -8,6 +8,7 @@ import ComponenteVendas2 from "./pages/pdv/ComponenteVendas";
 import { CadastroAtendentes } from "./pages/cadastro_atendentes/CadastroAtendentes";
 import { useAtendentes } from "./pages/cadastro_atendentes/hooks/useAtendentes";
 import { useSessoesCaixa } from "./pages/cadastro_atendentes/hooks/useSessoesCaixa";
+import LogoScleenkr from "./components/icons/LogoScleenkr"; // Correto
 
 const dataAnooAtual = new Date().getFullYear();
 
@@ -18,12 +19,9 @@ function App() {
   const [menuAberto, setMenuAberto] = useState(false);
   const [statusSom] = useState(false);
 
-  // Importamos os estados e as funções de busca dos hooks
   const { atendentes, buscarAtendentes, setAtendentes } = useAtendentes();
   const { sessaoAtual, buscarSessaoAtual, setSessaoAtual } = useSessoesCaixa();
 
-  // Função para resetar o estado local IMEDIATAMENTE após deleções
-  // Isso força o React a esconder o PDV sem precisar de reload
   const resetarSistemaLocal = useCallback((tipo) => {
     if (tipo === "EMPRESA") {
       setEmpresaSelecionada(null);
@@ -32,7 +30,7 @@ function App() {
     }
     if (tipo === "SESSAO" || tipo === "ATENDENTE") {
       setSessaoAtual(null);
-      buscarAtendentes(); // Atualiza a lista caso um atendente tenha sido deletado
+      buscarAtendentes();
     }
   }, [setSessaoAtual, setAtendentes, buscarAtendentes]);
 
@@ -41,7 +39,7 @@ function App() {
       const resposta = await fetch(URL_API_EMPRESAS);
       if (!resposta.ok) throw new Error("Erro API");
       const dados = await resposta.json();
-      
+
       if (dados && dados.length > 0) {
         setEmpresaSelecionada(dados[0]);
       } else {
@@ -61,37 +59,61 @@ function App() {
       await buscarAtendentes();
       await buscarSessaoAtual();
     };
-    
+
     inicializarSistema();
   }, [carregarDadosEmpresa, buscarAtendentes, buscarSessaoAtual]);
+
+  useEffect(() => {
+    const titulos01 = "Scleenkr"
+    const titulos02 = ["Scleenkr", "PDV Otimizado", "Gestão Inteligente"];
+    let indice = 0;
+
+    const temporizador = setInterval(() => {
+      if (!document.hidden) {
+                document.title = titulos01;
+
+      }else{
+        indice = (indice + 1) % titulos02.length;
+        document.title = titulos02[indice];
+      }
+    }, 2000);
+
+    return () => clearInterval(temporizador);
+  }, []);
 
   const fecharMenu = () => setMenuAberto(false);
 
   const toggleMenu = (e) => {
-    e.stopPropagation(); 
+    e.stopPropagation();
     setMenuAberto(!menuAberto);
   };
 
   const temAtendentes = atendentes && atendentes.length > 0;
 
   if (carregandoSistema) {
-    return <div style={{ background: '#1e1e1e', height: '100vh', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Sincronizando sistema...</div>;
+    return (
+      <div style={{ background: '#1e1e1e', height: '100vh', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        Sincronizando $CLEENKR...
+      </div>
+    );
   }
 
   return (
     <AppStyled>
       <header>
         <div className="logomenu">
-          <Link to="/everscash/" className="logo" onClick={fecharMenu}>
-            cleenkr
-          </Link>
+          <div className="logodiv">
+            <Link to="/scleenkr/" className="logo" onClick={fecharMenu}>
+              <LogoScleenkr width="auto" color="#f3931a" />
+            </Link>
+          </div>
 
           {empresaSelecionada && (
             <div className="nomeempresa">
               <div className="nome-empresa-texto">
                 {empresaSelecionada.nome_fantasia || empresaSelecionada.razao_social}
               </div>
-              
+
               {sessaoAtual && (
                 <div className="nome-atendente-header">
                   <span>| Operador:</span> <strong>{sessaoAtual.nome_atendente}</strong>
@@ -106,11 +128,11 @@ function App() {
             </button>
 
             <ul className={`menuItems ${menuAberto ? 'visivel' : 'oculto'}`}>
-              <li><Link to="/everscash/" className="btns" onClick={fecharMenu}>PDV</Link></li>
-              <li><Link to="/everscash/relatorios" className="btns" onClick={fecharMenu}>Vendas</Link></li>
-              <li><Link to="/everscash/produtos" className="btns" onClick={fecharMenu}>Produtos</Link></li>
-              <li><Link to="/everscash/gerarcupom" className="btns" onClick={fecharMenu}>Cupom</Link></li>
-              <li><Link to="/everscash/atendentes_sessao" className="btns" onClick={fecharMenu}>Atendentes/Sessão</Link></li>
+              <li><Link to="/scleenkr/" className="btns" onClick={fecharMenu}>PDV</Link></li>
+              <li><Link to="/scleenkr/relatorios" className="btns" onClick={fecharMenu}>Vendas</Link></li>
+              <li><Link to="/scleenkr/produtos" className="btns" onClick={fecharMenu}>Produtos</Link></li>
+              <li><Link to="/scleenkr/gerarcupom" className="btns" onClick={fecharMenu}>Cupom</Link></li>
+              <li><Link to="/scleenkr/atendentes_sessao" className="btns" onClick={fecharMenu}>Atendentes/Sessão</Link></li>
             </ul>
           </nav>
         </div>
@@ -118,43 +140,42 @@ function App() {
 
       <main onClick={fecharMenu}>
         <Routes>
-          <Route 
-            path="/everscash/" 
+          <Route
+            path="/scleenkr/"
             element={
-              <ComponenteVendas2 
-                somStatus={statusSom} 
-                sessaoAtual={sessaoAtual} 
+              <ComponenteVendas2
+                somStatus={statusSom}
+                sessaoAtual={sessaoAtual}
                 temAtendentes={temAtendentes}
-                empresaGlobal={empresaSelecionada} 
+                empresaGlobal={empresaSelecionada}
               />
-            } 
+            }
           />
-          
-          <Route path="/everscash/relatorios" element={<Relatorios empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
-          <Route path="/everscash/produtos" element={<Produtos $empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
-          <Route path="/everscash/gerarcupom" element={<GerarCupom empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
-          
-          {/* PASSAMOS O resetarSistemaLocal PARA A PÁGINA DE CADASTRO */}
-          <Route 
-            path="/everscash/atendentes_sessao" 
+
+          <Route path="/scleenkr/relatorios" element={<Relatorios empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
+          <Route path="/scleenkr/produtos" element={<Produtos $empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
+          <Route path="/scleenkr/gerarcupom" element={<GerarCupom empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
+
+          <Route
+            path="/scleenkr/atendentes_sessao"
             element={
-              <CadastroAtendentes 
-                empresaSelecionada={empresaSelecionada} 
-                somStatus={statusSom} 
+              <CadastroAtendentes
+                empresaSelecionada={empresaSelecionada}
+                somStatus={statusSom}
                 onAtualizarEmpresa={carregarDadosEmpresa}
-                onResetEstado={resetarSistemaLocal} 
+                onResetEstado={resetarSistemaLocal}
                 buscarSessaoAtual={buscarSessaoAtual}
               />
-            } 
+            }
           />
-          
-          <Route path="*" element={<Navigate to="/everscash/" />} />
+
+          <Route path="*" element={<Navigate to="/scleenkr/" />} />
         </Routes>
       </main>
 
       <footer>
         <div className="footer">
-          <p>© Everscript {dataAnooAtual} - Todos os direitos reservados</p>
+          <p>© $CLEENKR {dataAnooAtual} - Todos os direitos reservados</p>
         </div>
       </footer>
     </AppStyled>
