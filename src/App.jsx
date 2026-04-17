@@ -69,7 +69,8 @@ function App() {
   useEffect(() => {
     const titulos01 = "Scleenkr";
     const titulos02 = [
-      "$cleenkr", "Solução PDV",
+      "$cleenkr",
+      "Solução PDV",
       "Alta Performance",
       "Sincronização",
     ];

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import somCancelar from "/sounds/efeitos/cancelar1.mp3";
-import somFinalizar from "/sounds/efeitos/printer2.mp3";
+import somFinalizar from "/sounds/efeitos/printer3.mp3";
 
 const URL_API_VENDAS = "http://localhost:3000/vendas";
 const URL_API_PRODUTOS = "http://localhost:3000/produtos";
