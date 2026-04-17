@@ -22,17 +22,20 @@ function App() {
   const { atendentes, buscarAtendentes, setAtendentes } = useAtendentes();
   const { sessaoAtual, buscarSessaoAtual, setSessaoAtual } = useSessoesCaixa();
 
-  const resetarSistemaLocal = useCallback((tipo) => {
-    if (tipo === "EMPRESA") {
-      setEmpresaSelecionada(null);
-      setSessaoAtual(null);
-      setAtendentes([]);
-    }
-    if (tipo === "SESSAO" || tipo === "ATENDENTE") {
-      setSessaoAtual(null);
-      buscarAtendentes();
-    }
-  }, [setSessaoAtual, setAtendentes, buscarAtendentes]);
+  const resetarSistemaLocal = useCallback(
+    (tipo) => {
+      if (tipo === "EMPRESA") {
+        setEmpresaSelecionada(null);
+        setSessaoAtual(null);
+        setAtendentes([]);
+      }
+      if (tipo === "SESSAO" || tipo === "ATENDENTE") {
+        setSessaoAtual(null);
+        buscarAtendentes();
+      }
+    },
+    [setSessaoAtual, setAtendentes, buscarAtendentes],
+  );
 
   const carregarDadosEmpresa = useCallback(async () => {
     try {
@@ -64,15 +67,18 @@ function App() {
   }, [carregarDadosEmpresa, buscarAtendentes, buscarSessaoAtual]);
 
   useEffect(() => {
-    const titulos01 = "Scleenkr"
-    const titulos02 = ["Scleenkr", "PDV Otimizado", "Gestão Inteligente"];
+    const titulos01 = "Scleenkr";
+    const titulos02 = [
+      "$cleenkr", "Solução PDV",
+      "Alta Performance",
+      "Sincronização",
+    ];
     let indice = 0;
 
     const temporizador = setInterval(() => {
       if (!document.hidden) {
-                document.title = titulos01;
-
-      }else{
+        document.title = titulos01;
+      } else {
         indice = (indice + 1) % titulos02.length;
         document.title = titulos02[indice];
       }
@@ -92,7 +98,16 @@ function App() {
 
   if (carregandoSistema) {
     return (
-      <div style={{ background: '#1e1e1e', height: '100vh', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div
+        style={{
+          background: "#1e1e1e",
+          height: "100vh",
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         Sincronizando $CLEENKR...
       </div>
     );
@@ -111,28 +126,71 @@ function App() {
           {empresaSelecionada && (
             <div className="nomeempresa">
               <div className="nome-empresa-texto">
-                {empresaSelecionada.nome_fantasia || empresaSelecionada.razao_social}
+                {empresaSelecionada.nome_fantasia ||
+                  empresaSelecionada.razao_social}
               </div>
 
               {sessaoAtual && (
                 <div className="nome-atendente-header">
-                  <span>| Operador:</span> <strong>{sessaoAtual.nome_atendente}</strong>
+                  <span>| Operador:</span>{" "}
+                  <strong>{sessaoAtual.nome_atendente}</strong>
                 </div>
               )}
             </div>
           )}
 
-          <nav className={`menu-flutuante ${menuAberto ? 'ativo' : ''}`}>
-            <button className="menuButton" onClick={toggleMenu} aria-expanded={menuAberto} type="button">
+          <nav className={`menu-flutuante ${menuAberto ? "ativo" : ""}`}>
+            <button
+              className="menuButton"
+              onClick={toggleMenu}
+              aria-expanded={menuAberto}
+              type="button"
+            >
               {menuAberto ? "✕" : "☰"}
             </button>
 
-            <ul className={`menuItems ${menuAberto ? 'visivel' : 'oculto'}`}>
-              <li><Link to="/scleenkr/" className="btns" onClick={fecharMenu}>PDV</Link></li>
-              <li><Link to="/scleenkr/relatorios" className="btns" onClick={fecharMenu}>Vendas</Link></li>
-              <li><Link to="/scleenkr/produtos" className="btns" onClick={fecharMenu}>Produtos</Link></li>
-              <li><Link to="/scleenkr/gerarcupom" className="btns" onClick={fecharMenu}>Cupom</Link></li>
-              <li><Link to="/scleenkr/atendentes_sessao" className="btns" onClick={fecharMenu}>Atendentes/Sessão</Link></li>
+            <ul className={`menuItems ${menuAberto ? "visivel" : "oculto"}`}>
+              <li>
+                <Link to="/scleenkr/" className="btns" onClick={fecharMenu}>
+                  PDV
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/scleenkr/relatorios"
+                  className="btns"
+                  onClick={fecharMenu}
+                >
+                  Vendas
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/scleenkr/produtos"
+                  className="btns"
+                  onClick={fecharMenu}
+                >
+                  Produtos
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/scleenkr/gerarcupom"
+                  className="btns"
+                  onClick={fecharMenu}
+                >
+                  Cupom
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/scleenkr/atendentes_sessao"
+                  className="btns"
+                  onClick={fecharMenu}
+                >
+                  Atendentes/Sessão
+                </Link>
+              </li>
             </ul>
           </nav>
         </div>
@@ -152,9 +210,33 @@ function App() {
             }
           />
 
-          <Route path="/scleenkr/relatorios" element={<Relatorios empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
-          <Route path="/scleenkr/produtos" element={<Produtos $empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
-          <Route path="/scleenkr/gerarcupom" element={<GerarCupom empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
+          <Route
+            path="/scleenkr/relatorios"
+            element={
+              <Relatorios
+                empresaSelecionada={empresaSelecionada}
+                somStatus={statusSom}
+              />
+            }
+          />
+          <Route
+            path="/scleenkr/produtos"
+            element={
+              <Produtos
+                $empresaSelecionada={empresaSelecionada}
+                somStatus={statusSom}
+              />
+            }
+          />
+          <Route
+            path="/scleenkr/gerarcupom"
+            element={
+              <GerarCupom
+                empresaSelecionada={empresaSelecionada}
+                somStatus={statusSom}
+              />
+            }
+          />
 
           <Route
             path="/scleenkr/atendentes_sessao"

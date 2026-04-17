@@ -1,69 +1,71 @@
-# EversCash Frontend 💻
+# $cleenkr Frontend 💻
 
-O **EversCash Frontend** é uma aplicação Single Page Application (SPA) desenvolvida em **React**, projetada para oferecer uma experiência de Ponto de Venda (PDV) ágil, intuitiva e com ferramentas avançadas de gestão financeira.
+O **$cleenkr Frontend** (pronuncia-se *Clín-quer*) é uma aplicação Single Page Application (SPA) desenvolvida em **React**, projetada para ser a "máquina que trabalha" pelo negócio. Oferece uma experiência de Ponto de Venda (PDV) ágil, intuitiva e focada na sonoridade do lucro e na precisão da gestão financeira.
 
 ## 🚀 Principais Funcionalidades
 
 ### 🛒 Ponto de Venda (PDV)
-* **Catálogo Inteligente:** Listagem de produtos com busca em tempo real.
-* **Carrinho Dinâmico:** Gerenciamento de itens, quantidades e subtotais.
-* **Smart Change:** Sistema de cálculo de troco com atalhos de valores comuns.
-* **Atalhos de Teclado:** Operação rápida para finalizar vendas sem o uso do mouse.
+* **Catálogo Inteligente:** Listagem de produtos com busca em tempo real e interface otimizada.
+* **Carrinho Dinâmico:** Gerenciamento de itens, quantidades e cálculos automáticos de subtotais.
+* **Smart Change:** Sistema inteligente de cálculo de troco com atalhos para valores comuns.
+* **Atalhos de Teclado:** Operação de alta performance para finalizar vendas com agilidade total.
 
 ### 📊 Gestão e Relatórios
 * **Fluxo de Caixa:** Dashboard com resumo de vendas brutas, sangrias e saldo líquido estimado.
-* **Filtros Avançados:** Busca por período de datas e múltiplos métodos de pagamento simultâneos.
+* **Filtros Avançados:** Busca por período e múltiplos métodos de pagamento simultâneos.
 * **Auditoria de Vendas:** Identificação visual de vendas editadas e referências de transação (Pix/Cartão).
-* **Exportação PDF:** Geração de relatórios profissionais para fechamento de caixa.
-* **Notas Diárias:** Editor Rich Text (WYSIWYG) para registrar ocorrências do dia.
+* **Exportação PDF:** Geração de relatórios profissionais para fechamento de caixa e conferência.
+* **Notas Diárias:** Registro de ocorrências via editor Rich Text (WYSIWYG).
 
 ## 🏗️ Estrutura do Projeto
 
-Abaixo, a organização dos principais arquivos e diretórios:
+A organização dos principais arquivos e diretórios reflete a robustez do sistema:
 
-### `components/`
+### `src/components/`
 * **Relatórios:**
     * `TabelaVendasComponent.jsx`: Exibição detalhada de vendas e métodos.
-    * `TabelaRetiradasComponent.jsx`: Gestão de sangrias/retiradas.
-    * `SecaoResumo.jsx`: Cartões financeiros e totalização por método.
-    * `SecaoFiltros.jsx`: Controles de data e pagamento.
-    * `SecaoDelecao.jsx`: Ações de massa e exportação.
-* **Modais:**
-    * `ModalEdicaoVenda.jsx`: Correção de métodos de pagamento pós-venda.
-    * `ModalRetirada.jsx`: Registro de novas saídas de caixa.
-    * `ModalObservacao.jsx`: Editor de texto rico para notas diárias.
+    * `TabelaRetiradasComponent.jsx`: Gestão de sangrias/retiradas de caixa.
+    * `SecaoResumo.jsx`: Cards financeiros com totalização por método.
+    * `SecaoFiltros.jsx`: Controles dinâmicos de data e forma de pagamento.
+* **Modais & UI:**
+    * `ModalEdicaoVenda.jsx`: Ajuste de métodos de pagamento pós-venda.
+    * `LogoScleenkr.jsx`: Componente SVG dinâmico da marca.
+    * `ModalObservacao.jsx`: Editor de notas para registros diários.
 
-### `hooks/`
-* `useVendas.js`: Integração com API de vendas e deleção.
-* `useCalculos.js`: Lógica de processamento de totais e saldo líquido.
-* `useGeracaoPDF.js`: Configuração e geração do documento PDF (jspdf/jspdf-autotable).
-* `useObservacoes.js`: Gerenciamento do CRUD de notas diárias.
+### `src/hooks/`
+* `useVendas.js`: Comunicação com a API de vendas e lógica de deleção.
+* `useCalculos.js`: Processamento de totais, saldo líquido e métricas financeiras.
+* `useGeracaoPDF.js`: Configuração e exportação de documentos (jspdf).
+* `useSessoesCaixa.js`: Gerenciamento de abertura e fechamento de operadores.
 
 ## 🛠️ Tecnologias Utilizadas
 
-* **React.js:** Biblioteca principal.
-* **Styled Components:** Estilização encapsulada e temas (Dark Mode).
-* **Axios:** Consumo da API REST.
-* **jsPDF:** Geração de relatórios em PDF.
-* **Lucide React / FontAwesome:** Ícones de interface.
+* **React.js:** Estrutura principal da aplicação.
+* **Styled Components:** Estilização moderna e encapsulada.
+* **Axios:** Cliente HTTP para consumo da API $cleenkr.
+* **jsPDF / AutoTable:** Motor de geração de relatórios.
+* **Lucide React:** Ícones minimalistas e modernos.
 
 ## 🔧 Como Executar
 
-1.  Clone o repositório:
+1.  **Clone o repositório:**
     ```bash
-    git clone https://github.com/eversondeveloper/projeto_everscash.git
+    git clone https://github.com/eversondeveloper/scleenkr.git
     ```
-2.  Instale as dependências:
+2.  **Instale as dependências:**
     ```bash
     npm install
     ```
-3.  Configure o arquivo `.env` com a URL da API:
+3.  **Configure o ambiente:**
+    Crie um arquivo `.env` na raiz:
     ```env
     REACT_APP_API_URL=http://localhost:3000
     ```
-4.  Inicie a aplicação:
+4.  **Inicie a aplicação:**
     ```bash
     npm start
     ```
 
-© 2026 Everscript - Ponto de Venda e Gestão Inteligente.
+---
+
+© 2026 $cleenkr - Gestão Comercial e Automação Inteligente.

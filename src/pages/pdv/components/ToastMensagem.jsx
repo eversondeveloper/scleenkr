@@ -44,7 +44,7 @@ const ToastMensagem = ({ mensagem, onClose }) => {
     if (ehVendaSucesso) {
       setVisible(false); 
       setTimeout(() => {
-        navigate("/everscash/relatorios"); 
+        navigate("/scleenkr/relatorios"); 
         onClose();
       }, 200);
     }

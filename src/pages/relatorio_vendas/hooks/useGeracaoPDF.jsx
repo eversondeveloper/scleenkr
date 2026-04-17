@@ -21,7 +21,7 @@ export const useGeracaoPDF = () => {
   };
 
   const formatarIdentificacaoPDF = (nome, cpf) => {
-    if (!nome) return "Sistema";
+    if (!nome) return "SISTEMA";
     const primeiroNome = nome.split(' ')[0].toUpperCase();
     const cpfLimpo = cpf?.replace(/\D/g, '') || "";
     const cpfFormatado = cpfLimpo.length === 11 
@@ -50,8 +50,8 @@ export const useGeracaoPDF = () => {
 
       const pageWidth = doc.internal.pageSize.getWidth();
       const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 20;
-      let y = 25;
+      const margin = 15;
+      let y = 20;
 
       const cores = {
         texto: [44, 62, 80],
@@ -60,36 +60,31 @@ export const useGeracaoPDF = () => {
         fundoCard: [248, 250, 252],
         linha: [226, 232, 240],
         positivo: [39, 174, 96],
-        negativo: [192, 57, 43]
+        negativo: [192, 57, 43],
+        alerta: [243, 156, 18]
       };
 
-      const drawHeader = () => {
-        // Logotipo / Nome Empresa
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
-        doc.setTextColor(...cores.accent);
-        doc.text(dadosEmpresa?.nome_fantasia?.toUpperCase() || "RELATÓRIO", margin, y);
-        
-        doc.setFontSize(9);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(...cores.suave);
-        doc.text(dadosEmpresa?.cnpj ? `CNPJ: ${dadosEmpresa.cnpj}` : "", margin, y + 5);
+      // Cálculos de Suporte
+      const ticketMedio = quantidadeVendas > 0 ? totalVendasBruto / quantidadeVendas : 0;
+      
+      const consolidadoMetodos = {};
+      vendasFiltradas.forEach(v => {
+        v.pagamentos?.forEach(p => {
+          consolidadoMetodos[p.metodo] = (consolidadoMetodos[p.metodo] || 0) + parseFloat(p.valor_pago || 0);
+        });
+      });
 
-        // Badge do Período (Alinhado à direita)
-        const inicio = filtroDataInicio ? formatarDataFiltro(filtroDataInicio) : 'Início';
-        const fim = filtroDataFim ? formatarDataFiltro(filtroDataFim) : 'Fim';
-        const periodo = `PERÍODO: ${inicio} - ${fim}`;
-        doc.setFontSize(8);
-        doc.text(periodo, pageWidth - margin, y, { align: "right" });
-
-        y += 15;
-        doc.setDrawColor(...cores.linha);
-        doc.line(margin, y, pageWidth - margin, y);
-        y += 12;
-      };
+      const rankingProdutos = {};
+      vendasFiltradas.forEach(v => {
+        v.itens?.forEach(i => {
+          const desc = i.descricao_item?.toUpperCase() || "NÃO IDENTIFICADO";
+          rankingProdutos[desc] = (rankingProdutos[desc] || 0) + parseInt(i.quantidade || 0);
+        });
+      });
+      const topProdutos = Object.entries(rankingProdutos).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
       const checkPage = (heightNeeded) => {
-        if (y + heightNeeded > pageHeight - 20) {
+        if (y + heightNeeded > pageHeight - 15) {
           doc.addPage();
           y = 20;
           return true;
@@ -97,150 +92,188 @@ export const useGeracaoPDF = () => {
         return false;
       };
 
-      drawHeader();
+      // Header
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(...cores.accent);
+      doc.text(dadosEmpresa?.nome_fantasia?.toUpperCase() || "$CLEENKR", margin, y);
+      
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(...cores.suave);
+      doc.text(`AUDITORIA FINANCEIRA COMPLETA | CNPJ: ${dadosEmpresa?.cnpj || '---'}`, margin, y + 5);
 
-      // --- 1. DASHBOARD DE RESUMO (CARDS MODERNOS) ---
+      const periodo = `PERÍODO: ${filtroDataInicio ? formatarDataFiltro(filtroDataInicio) : 'INÍCIO'} - ${filtroDataFim ? formatarDataFiltro(filtroDataFim) : 'FIM'}`;
+      doc.text(periodo, pageWidth - margin, y, { align: "right" });
+      y += 15;
+
+      // --- 1. DASHBOARD COM DESTAQUE PARA RETIRADAS ---
+      doc.setFillColor(...cores.fundoCard);
+      doc.roundedRect(margin, y, pageWidth - (margin * 2), 25, 2, 2, "F");
+      
+      const col = (pageWidth - (margin * 2)) / 5;
+      const kpis = [
+        { label: "VENDAS", val: quantidadeVendas },
+        { label: "FATUR. BRUTO", val: `R$ ${totalVendasBruto.toFixed(2).replace('.', ',')}`, color: cores.texto },
+        { label: "TOTAL RETIRADAS", val: `- R$ ${totalRetiradas.toFixed(2).replace('.', ',')}`, color: cores.negativo, bold: true },
+        { label: "TICKET MÉDIO", val: `R$ ${ticketMedio.toFixed(2).replace('.', ',')}` },
+        { label: "SALDO LÍQUIDO", val: `R$ ${totalLiquido.toFixed(2).replace('.', ',')}`, color: totalLiquido >= 0 ? cores.positivo : cores.negativo, bold: true }
+      ];
+
+      kpis.forEach((k, i) => {
+        const posX = margin + (i * col) + 4;
+        doc.setFontSize(6.5);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...cores.suave);
+        doc.text(k.label, posX, y + 8);
+        
+        doc.setFontSize(k.bold ? 9.5 : 8.5);
+        doc.setTextColor(...(k.color || cores.accent));
+        doc.text(String(k.val), posX, y + 16);
+      });
+      y += 35;
+
+      // --- 2. DISTRIBUIÇÃO E RANKING ---
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(...cores.accent);
+      doc.text("PAGAMENTOS POR MÉTODO", margin, y);
+      doc.text("TOP PRODUTOS", pageWidth / 2 + 5, y);
+      y += 5;
+
+      const yStartStats = y;
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      Object.entries(consolidadoMetodos).forEach(([metodo, valor]) => {
+        doc.setTextColor(...cores.texto);
+        doc.text(`${metodo}:`, margin, y);
+        doc.setFont("helvetica", "bold");
+        doc.text(`R$ ${valor.toFixed(2).replace('.', ',')}`, margin + 35, y);
+        doc.setFont("helvetica", "normal");
+        y += 5;
+      });
+
+      let yProd = yStartStats;
+      topProdutos.forEach(([nome, qtd]) => {
+        doc.setTextColor(...cores.texto);
+        doc.text(`${qtd}x ${nome.substring(0, 22)}`, pageWidth / 2 + 5, yProd);
+        yProd += 5;
+      });
+
+      y = Math.max(y, yProd) + 10;
+
+      // --- 3. MOVIMENTAÇÕES DETALHADAS ---
       doc.setFontSize(10);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(...cores.accent);
-      doc.text("RESUMO EXECUTIVO", margin, y);
+      doc.text("DETALHAMENTO DE TRANSAÇÕES", margin, y);
       y += 6;
 
-      const cardW = (pageWidth - (margin * 2) - 10) / 3;
-      const cards = [
-        { label: "VENDAS", val: `${quantidadeVendas}`, sub: "transações" },
-        { label: "BRUTO", val: `R$ ${totalVendasBruto.toFixed(2).replace('.', ',')}`, sub: "faturamento" },
-        { label: "LÍQUIDO", val: `R$ ${totalLiquido.toFixed(2).replace('.', ',')}`, sub: "em caixa", color: totalLiquido >= 0 ? cores.positivo : cores.negativo }
-      ];
-
-      cards.forEach((c, i) => {
-        const x = margin + (i * (cardW + 5));
-        doc.setFillColor(...cores.fundoCard);
-        doc.roundedRect(x, y, cardW, 22, 2, 2, "F");
+      vendasFiltradas.forEach((venda) => {
+        checkPage(35);
+        doc.setFillColor(...cores.linha);
+        doc.rect(margin, y, pageWidth - (margin * 2), 6, "F");
+        doc.setFontSize(7.5);
+        doc.setTextColor(...cores.texto);
         
-        doc.setFontSize(7);
+        const status = venda.editada ? " [EDITADA]" : "";
+        doc.text(`#${venda.id_venda}${status}`, margin + 2, y + 4.2);
+        const dataH = new Date(venda.data_venda || venda.data_hora).toLocaleString("pt-BR");
+        doc.text(dataH, margin + 35, y + 4.2);
         doc.setFont("helvetica", "bold");
-        doc.setTextColor(...cores.suave);
-        doc.text(c.label, x + 4, y + 6);
+        doc.setTextColor(...cores.alerta);
+        doc.text(formatarIdentificacaoPDF(venda.nome_atendente, venda.cpf_atendente), pageWidth - margin - 2, y + 4.2, { align: "right" });
+        y += 10;
+
+        venda.itens?.forEach(item => {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(7);
+          doc.setTextColor(...cores.texto);
+          doc.text(`${item.quantity || item.quantidade}x ${(item.descricao_item || "PRODUTO").toUpperCase()}`, margin + 5, y);
+          doc.text(`R$ ${parseFloat(item.subtotal || 0).toFixed(2).replace('.', ',')}`, pageWidth - margin - 40, y, { align: "right" });
+          y += 4;
+        });
+
+        venda.pagamentos?.forEach(p => {
+          doc.setFont("helvetica", "italic");
+          doc.setFontSize(6.5);
+          doc.setTextColor(...cores.suave);
+          const ref = p.referencia_metodo ? ` (Ref: ${p.referencia_metodo})` : "";
+          doc.text(`${p.metodo}${ref}`, margin + 5, y);
+          doc.text(`R$ ${parseFloat(p.valor_pago || 0).toFixed(2).replace('.', ',')}`, pageWidth - margin - 40, y, { align: "right" });
+          y += 4;
+        });
+
+        if (parseFloat(venda.valor_troco) > 0) {
+          doc.setFontSize(6.5);
+          doc.setTextColor(...cores.alerta);
+          doc.text(`TROCO: R$ ${parseFloat(venda.valor_troco).toFixed(2).replace('.', ',')}`, pageWidth - margin - 40, y, { align: "right" });
+        }
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8);
+        doc.setTextColor(...cores.positivo);
+        doc.text(`TOTAL: R$ ${parseFloat(venda.valor_total_bruto).toFixed(2).replace('.', ',')}`, pageWidth - margin - 2, y, { align: "right" });
         
-        doc.setFontSize(11);
-        doc.setTextColor(...(c.color || cores.accent));
-        doc.text(c.val, x + 4, y + 13);
-        
-        doc.setFontSize(6);
-        doc.setFont("helvetica", "normal");
-        doc.setTextColor(...cores.suave);
-        doc.text(c.sub, x + 4, y + 18);
+        y += 6;
+        doc.setDrawColor(...cores.linha);
+        doc.line(margin, y - 2, pageWidth - margin, y - 2);
+        y += 4;
       });
 
-      y += 35;
-
-      // --- 2. TABELA DE VENDAS (DESIGN CLEAN) ---
-      if (vendasFiltradas.length > 0) {
+      // --- 4. SEÇÃO DE RETIRADAS (SANGRIAS) ---
+      if (retiradasFiltradas.length > 0) {
+        checkPage(25);
+        y += 5;
         doc.setFontSize(10);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(...cores.accent);
-        doc.text("DETALHAMENTO DE VENDAS", margin, y);
+        doc.setTextColor(...cores.negativo);
+        doc.text("RETIRADAS DE CAIXA (SANGRIAS)", margin, y);
         y += 6;
-
-        // Header da Tabela
-        doc.setFillColor(...cores.accent);
-        doc.roundedRect(margin, y, pageWidth - (margin * 2), 8, 1, 1, "F");
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(8);
-        doc.text("DATA/HORA", margin + 4, y + 5.5);
-        doc.text("ATENDENTE", margin + 45, y + 5.5);
-        doc.text("PAGAMENTO", margin + 95, y + 5.5);
-        doc.text("TOTAL", pageWidth - margin - 4, y + 5.5, { align: "right" });
-        y += 13;
-
-        doc.setTextColor(...cores.texto);
-        vendasFiltradas.forEach((v, i) => {
-          checkPage(10);
+        retiradasFiltradas.forEach(r => {
+          checkPage(8);
+          doc.setFontSize(8);
           doc.setFont("helvetica", "normal");
-          const dt = new Date(v.data_hora || v.data_venda).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-          doc.text(dt, margin + 4, y);
-          doc.text(formatarIdentificacaoPDF(v.nome_atendente, v.cpf_atendente).substring(0, 22), margin + 45, y);
-          
-          const metodos = (v.pagamentos || []).map(p => p.metodo).join(', ');
-          doc.text(metodos.substring(0, 25), margin + 95, y);
-          
+          doc.setTextColor(...cores.texto);
+          doc.text(`${new Date(r.data_retirada).toLocaleDateString('pt-BR')} - ${r.motivo || 'SEM MOTIVO'}`, margin + 2, y);
           doc.setFont("helvetica", "bold");
-          doc.text(`R$ ${parseFloat(v.valor_total_bruto).toFixed(2).replace('.', ',')}`, pageWidth - margin - 4, y, { align: "right" });
-          
-          y += 4;
-          doc.setDrawColor(...cores.linha);
-          doc.line(margin + 2, y, pageWidth - margin - 2, y);
+          doc.text(`- R$ ${parseFloat(r.valor).toFixed(2).replace('.', ',')}`, pageWidth - margin - 2, y, { align: "right" });
           y += 6;
         });
       }
 
-      // --- 3. RETIRADAS ---
-      if (retiradasFiltradas.length > 0) {
-        y += 5;
-        checkPage(30);
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "bold");
-        doc.text("RETIRADAS DE CAIXA", margin, y);
-        y += 6;
-
-        retiradasFiltradas.forEach(r => {
-          checkPage(10);
-          doc.setFillColor(255, 245, 245);
-          doc.rect(margin, y - 4, pageWidth - (margin * 2), 7, "F");
-          doc.setFont("helvetica", "normal");
-          doc.setFontSize(8);
-          const dr = new Date(r.data_retirada).toLocaleDateString('pt-BR');
-          doc.text(`${dr} - ${r.motivo}`, margin + 4, y + 0.5);
-          doc.setFont("helvetica", "bold");
-          doc.setTextColor(...cores.negativo);
-          doc.text(`- R$ ${parseFloat(r.valor).toFixed(2).replace('.', ',')}`, pageWidth - margin - 4, y + 0.5, { align: "right" });
-          doc.setTextColor(...cores.texto);
-          y += 9;
-        });
-      }
-
-      // --- 4. NOTAS ---
       if (observacoes?.length > 0) {
-        y += 5;
-        checkPage(30);
+        checkPage(20);
+        y += 10;
         doc.setFontSize(10);
-        doc.setFont("helvetica", "bold");
-        doc.text("NOTAS E OBSERVAÇÕES", margin, y);
-        y += 8;
-
+        doc.setTextColor(...cores.accent);
+        doc.text("NOTAS DIÁRIAS", margin, y);
+        y += 6;
         observacoes.forEach(obs => {
           const txt = processarHtmlParaTexto(obs.texto);
-          const lines = doc.splitTextToSize(txt, pageWidth - (margin * 2) - 10);
+          const lines = doc.splitTextToSize(txt, pageWidth - (margin * 2));
           checkPage(lines.length * 5 + 10);
-          
-          doc.setDrawColor(...cores.accent);
-          doc.setLineWidth(0.5);
-          doc.line(margin, y - 4, margin, y + (lines.length * 5)); // Linha vertical de destaque
-          
-          doc.setFontSize(8);
+          doc.setFontSize(7.5);
           doc.setFont("helvetica", "bold");
-          doc.text(new Date(obs.data_observacao).toLocaleDateString('pt-BR'), margin + 5, y);
-          y += 5;
+          doc.text(new Date(obs.data_observacao).toLocaleDateString('pt-BR'), margin, y);
+          y += 4.5;
           doc.setFont("helvetica", "normal");
           doc.setTextColor(...cores.suave);
-          doc.text(lines, margin + 5, y);
+          doc.text(lines, margin, y);
           y += (lines.length * 5) + 5;
         });
       }
 
-      // Rodapé com numeração
       const totalPaginas = doc.internal.getNumberOfPages();
       for (let i = 1; i <= totalPaginas; i++) {
         doc.setPage(i);
         doc.setFontSize(7);
         doc.setTextColor(...cores.suave);
-        doc.text(`Documento gerado em ${new Date().toLocaleString()} — Página ${i} de ${totalPaginas}`, pageWidth / 2, pageHeight - 10, { align: "center" });
+        doc.text(`$CLEENKR — Gerado em ${new Date().toLocaleString()} — Página ${i} de ${totalPaginas}`, pageWidth / 2, pageHeight - 10, { align: "center" });
       }
 
-      doc.save(`Relatorio_${filtroDataInicio || 'Geral'}.pdf`);
+      doc.save(`Relatorio_Scleenkr_${new Date().getTime()}.pdf`);
     } catch (error) {
-      console.error(error);
+      console.error("Erro PDF:", error);
     } finally {
       setGerandoPDF(false);
     }
