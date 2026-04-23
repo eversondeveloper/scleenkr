@@ -1,7 +1,5 @@
-// hooks/useEmpresa.js
-import { useState, useEffect } from "react";
-
-const URL_API_EMPRESAS = "http://localhost:3000/empresas";
+import { useState, useEffect } from 'react';
+import { api } from '../../../api/client';
 
 export const useEmpresa = () => {
   const [dadosEmpresa, setDadosEmpresa] = useState(null);
@@ -13,21 +11,15 @@ export const useEmpresa = () => {
       setCarregandoEmpresa(true);
       setErroEmpresa(null);
       try {
-        const resposta = await fetch(URL_API_EMPRESAS);
-        if (!resposta.ok) {
-          throw new Error("Falha ao carregar empresas da API.");
-        }
-        const dados = await resposta.json();
-
-       
+        const dados = await api.get('/empresas');
         if (dados.length > 0) {
           setDadosEmpresa(dados[0]);
         } else {
-          setErroEmpresa("Nenhuma empresa encontrada na base de dados.");
+          setErroEmpresa('Nenhuma empresa encontrada na base de dados.');
         }
       } catch (error) {
-        console.error("Erro ao buscar dados da empresa:", error);
-        setErroEmpresa("❌ Erro ao carregar dados da empresa da API.");
+        console.error('Erro ao buscar dados da empresa:', error);
+        setErroEmpresa('❌ Erro ao carregar dados da empresa da API.');
       } finally {
         setCarregandoEmpresa(false);
       }
@@ -35,9 +27,5 @@ export const useEmpresa = () => {
     buscarEmpresa();
   }, []);
 
-  return {
-    dadosEmpresa,
-    carregandoEmpresa,
-    erroEmpresa,
-  };
+  return { dadosEmpresa, carregandoEmpresa, erroEmpresa };
 };

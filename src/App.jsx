@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { api } from "./api/client";
 import { AppStyled } from "./AppStyled";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import { Relatorios } from "./pages/relatorio_vendas/Relatorios";
@@ -13,7 +14,7 @@ import LogoScleenkr from "./components/icons/LogoScleenkr"; // Correto
 const dataAnooAtual = new Date().getFullYear();
 
 function App() {
-  const URL_API_EMPRESAS = "http://localhost:3000/empresas";
+  
   const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
   const [carregandoSistema, setCarregandoSistema] = useState(true);
   const [menuAberto, setMenuAberto] = useState(false);
@@ -39,15 +40,8 @@ function App() {
 
   const carregarDadosEmpresa = useCallback(async () => {
     try {
-      const resposta = await fetch(URL_API_EMPRESAS);
-      if (!resposta.ok) throw new Error("Erro API");
-      const dados = await resposta.json();
-
-      if (dados && dados.length > 0) {
-        setEmpresaSelecionada(dados[0]);
-      } else {
-        setEmpresaSelecionada(null);
-      }
+      const dados = await api.get("/empresas");
+      setEmpresaSelecionada(dados && dados.length > 0 ? dados[0] : null);
     } catch (erro) {
       console.error("Erro ao carregar empresas:", erro);
       setEmpresaSelecionada(null);

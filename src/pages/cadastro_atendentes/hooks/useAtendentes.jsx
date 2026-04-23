@@ -1,27 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
-
-const URL_API_ATENDENTES = 'http://localhost:3000/atendentes';
+import { api } from '../../../api/client';
 
 export const useAtendentes = () => {
   const [atendentes, setAtendentes] = useState([]);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
 
-  // Busca a lista atualizada de atendentes do servidor
   const buscarAtendentes = useCallback(async () => {
     try {
       setCarregando(true);
       setErro('');
-      
-      const resposta = await fetch(URL_API_ATENDENTES);
-      
-      if (!resposta.ok) throw new Error('Erro ao buscar atendentes no servidor.');
-      
-      const dados = await resposta.json();
-      // Garante que o estado seja sempre um array para evitar erros de .map() na UI
+      const dados = await api.get('/atendentes');
       setAtendentes(Array.isArray(dados) ? dados : []);
     } catch (error) {
-      console.error("Erro ao buscar atendentes:", error);
+      console.error('Erro ao buscar atendentes:', error);
       setErro(error.message);
       setAtendentes([]);
     } finally {
@@ -29,58 +21,14 @@ export const useAtendentes = () => {
     }
   }, []);
 
-  useEffect(() => {
-    buscarAtendentes();
-  }, [buscarAtendentes]);
+  useEffect(() => { buscarAtendentes(); }, [buscarAtendentes]);
 
-  /**
-   * CRIAÇÃO: Vincula o novo atendente à empresa de forma explícita.
-   */
   const criarAtendente = async (dadosAtendente, idEmpresa) => {
     if (!idEmpresa) {
-      return { sucesso: false, erro: "ID da empresa não detectado. Cadastre a empresa primeiro." };
+      return { sucesso: false, erro: 'ID da empresa não detectado. Cadastre a empresa primeiro.' };
     }
-
     try {
-      const resposta = await fetch(URL_API_ATENDENTES, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          ...dadosAtendente, 
-          id_empresa: idEmpresa // Sobrescreve para garantir o vínculo correto
-        })
-      });
-
-      const resultado = await resposta.json();
-
-      if (!resposta.ok) {
-        throw new Error(resultado.erro || 'Erro ao processar cadastro no servidor.');
-      }
-
-      await buscarAtendentes(); 
-      return { sucesso: true, atendente: resultado.atendente };
-    } catch (error) {
-      return { sucesso: false, erro: error.message };
-    }
-  };
-
-  /**
-   * ATUALIZAÇÃO
-   */
-  const atualizarAtendente = async (id, dadosAtendente) => {
-    try {
-      const resposta = await fetch(`${URL_API_ATENDENTES}/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dadosAtendente)
-      });
-
-      const resultado = await resposta.json();
-
-      if (!resposta.ok) {
-        throw new Error(resultado.erro || 'Erro ao atualizar dados.');
-      }
-
+      const resultado = await api.post('/atendentes', { ...dadosAtendente, id_empresa: idEmpresa });
       await buscarAtendentes();
       return { sucesso: true, atendente: resultado.atendente };
     } catch (error) {
@@ -88,38 +36,28 @@ export const useAtendentes = () => {
     }
   };
 
-  /**
-   * DELEÇÃO DEFINITIVA (Sincronizada com DELETE do banco)
-   */
-  const deletarAtendente = async (id) => {
-    // Confirmação de segurança
-    const confirmar = window.confirm("⚠️ ATENÇÃO: Deseja EXCLUIR permanentemente este atendente? Esta ação não pode ser desfeita.");
-    if (!confirmar) return { sucesso: false };
-
+  const atualizarAtendente = async (id, dadosAtendente) => {
     try {
-      const resposta = await fetch(`${URL_API_ATENDENTES}/${id}`, { method: 'DELETE' });
-      
-      if (!resposta.ok) {
-        const erroSvr = await resposta.json();
-        // O servidor retornará erro se houver sessão aberta (conforme consultas.js)
-        throw new Error(erroSvr.erro || 'Não foi possível excluir o atendente.');
-      }
+      const resultado = await api.put(`/atendentes/${id}`, dadosAtendente);
+      await buscarAtendentes();
+      return { sucesso: true, atendente: resultado.atendente };
+    } catch (error) {
+      return { sucesso: false, erro: error.message };
+    }
+  };
 
+  const deletarAtendente = async (id) => {
+    const confirmar = window.confirm('⚠️ ATENÇÃO: Deseja EXCLUIR permanentemente este atendente? Esta ação não pode ser desfeita.');
+    if (!confirmar) return { sucesso: false };
+    try {
+      await api.delete(`/atendentes/${id}`);
       await buscarAtendentes();
       return { sucesso: true };
     } catch (error) {
-      console.error("Erro ao deletar atendente:", error);
+      console.error('Erro ao deletar atendente:', error);
       return { sucesso: false, erro: error.message };
     }
   };
 
-  return { 
-    atendentes, 
-    carregando, 
-    erro, 
-    criarAtendente, 
-    atualizarAtendente, 
-    deletarAtendente, 
-    buscarAtendentes 
-  };
+  return { atendentes, carregando, erro, criarAtendente, atualizarAtendente, deletarAtendente, buscarAtendentes };
 };
