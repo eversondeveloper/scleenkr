@@ -128,9 +128,9 @@ function App() {
           )}
 
           {/* MENU FLUTUANTE */}
-          <nav className="relative flex items-center">
+          <nav className="relative flex items-center h-full">
             <button
-              className={`text-[24px] bg-transparent border-none cursor-pointer px-2.5 py-1.5 transition-colors duration-300 hover:text-scleenkr-primary ${menuAberto ? "text-scleenkr-primary" : "text-[#bacbd9]"}`}
+              className={`text-[24px] bg-transparent border-none cursor-pointer px-2.5 transition-colors duration-300 hover:text-scleenkr-primary ${menuAberto ? "text-scleenkr-primary" : "text-[#bacbd9]"}`}
               onClick={toggleMenu}
               aria-expanded={menuAberto}
               type="button"
@@ -138,9 +138,10 @@ function App() {
               {menuAberto ? "✕" : "☰"}
             </button>
 
-            {/* Dropdown com animação via Tailwind */}
+            {/* Dropdown forçado a ter os valores EXATOS do AppStyled */}
             <ul 
-              className={`absolute top-full right-0 mt-2 bg-[#1a1a1a] border border-[#3b3b3b] rounded-lg shadow-[0_4px_15px_rgba(0,0,0,0.5)] p-2.5 min-w-[200px] list-none flex flex-col gap-1.5 z-50 transition-all duration-200 origin-top-right
+              className={`absolute top-[90%] right-0 mt-2 bg-[#1a1a1a] border border-[#3b3b3b] rounded-[8px] shadow-[0_4px_15px_rgba(0,0,0,0.5)] 
+              p-[10px] min-w-[200px] flex flex-col gap-[5px] z-50 transition-all duration-200 origin-top-right
               ${menuAberto ? "opacity-100 scale-100 visible" : "opacity-0 scale-95 invisible"}`}
             >
               {[
@@ -153,7 +154,9 @@ function App() {
                 <li key={index} className="w-full">
                   <Link
                     to={link.path}
-                    className="block w-full no-underline bg-[#2a2a2a] text-[#bacbd9] border border-[#3b3b3b] rounded-md px-3.5 py-2.5 text-[14px] transition-all duration-200 cursor-pointer hover:bg-[#3b3b3b] hover:text-scleenkr-primary hover:border-scleenkr-primary active:translate-y-px"
+                    className="block w-full text-left bg-[#2a2a2a] text-[#bacbd9] border border-[#3b3b3b] rounded-[6px] 
+                    px-[15px] py-[10px] text-[14px] font-normal leading-normal transition-all duration-200 cursor-pointer 
+                    hover:bg-[#3b3b3b] hover:text-scleenkr-primary hover:border-scleenkr-primary active:translate-y-px"
                     onClick={fecharMenu}
                   >
                     {link.label}
