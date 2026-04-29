@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import LogoScleenkr from "../icons/LogoScleenkr";
+import LogoScleenkr from "../../assets/icons/LogoScleenkr.jsx";
 
 export function Header({ 
   empresaSelecionada, 
