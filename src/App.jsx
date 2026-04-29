@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "./api/client";
-import { AppStyled } from "./AppStyled";
 import { Routes, Route, Link, Navigate } from "react-router-dom";
 import { Relatorios } from "./pages/relatorio_vendas/Relatorios";
 import { Produtos } from "./pages/cadastro_produtos/Produtos";
@@ -9,12 +8,11 @@ import ComponenteVendas2 from "./pages/pdv/ComponenteVendas";
 import { CadastroAtendentes } from "./pages/cadastro_atendentes/CadastroAtendentes";
 import { useAtendentes } from "./pages/cadastro_atendentes/hooks/useAtendentes";
 import { useSessoesCaixa } from "./pages/cadastro_atendentes/hooks/useSessoesCaixa";
-import LogoScleenkr from "./components/icons/LogoScleenkr"; // Correto
+import LogoScleenkr from "./components/icons/LogoScleenkr";
 
 const dataAnooAtual = new Date().getFullYear();
 
 function App() {
-  
   const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
   const [carregandoSistema, setCarregandoSistema] = useState(true);
   const [menuAberto, setMenuAberto] = useState(false);
@@ -93,50 +91,46 @@ function App() {
 
   if (carregandoSistema) {
     return (
-      <div
-        style={{
-          background: "#1e1e1e",
-          height: "100vh",
-          color: "white",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      <div className="bg-scleenkr-bg h-screen text-white flex items-center justify-center">
         Sincronizando $CLEENKR...
       </div>
     );
   }
 
   return (
-    <AppStyled>
-      <header>
-        <div className="logomenu">
-          <div className="logodiv">
-            <Link to="/scleenkr/" className="logo" onClick={fecharMenu}>
+    <div className="w-screen h-screen overflow-hidden bg-[#121212] flex flex-col font-sans">
+      
+      {/* HEADER */}
+      <header className="w-full h-[6%] flex items-center justify-center bg-[#1a1a1a] border-b border-[#333] z-50">
+        <div className="w-[98%] flex items-center justify-between">
+          
+          <div className="h-[80%] w-[130px] flex items-center">
+            <Link to="/scleenkr/" className="text-[18px] font-bold text-scleenkr-primary no-underline" onClick={fecharMenu}>
               <LogoScleenkr width="auto" color="#f3931a" />
             </Link>
           </div>
 
           {empresaSelecionada && (
-            <div className="nomeempresa">
-              <div className="nome-empresa-texto">
-                {empresaSelecionada.nome_fantasia ||
-                  empresaSelecionada.razao_social}
+            <div className="flex items-center gap-2.5">
+              <div className="text-[#bacbd9] text-[13px] px-3 py-1 bg-[#252525] rounded border border-[#333] uppercase tracking-[0.5px]">
+                {empresaSelecionada.nome_fantasia || empresaSelecionada.razao_social}
               </div>
 
               {sessaoAtual && (
-                <div className="nome-atendente-header">
-                  <span>| Operador:</span>{" "}
-                  <strong>{sessaoAtual.nome_atendente}</strong>
+                <div className="flex items-center gap-1.5 text-[#888] text-[13px]">
+                  <span className="font-light">| Operador:</span>
+                  <strong className="text-scleenkr-success font-semibold capitalize">
+                    {sessaoAtual.nome_atendente}
+                  </strong>
                 </div>
               )}
             </div>
           )}
 
-          <nav className={`menu-flutuante ${menuAberto ? "ativo" : ""}`}>
+          {/* MENU FLUTUANTE */}
+          <nav className="relative flex items-center">
             <button
-              className="menuButton"
+              className={`text-[24px] bg-transparent border-none cursor-pointer px-2.5 py-1.5 transition-colors duration-300 hover:text-scleenkr-primary ${menuAberto ? "text-scleenkr-primary" : "text-[#bacbd9]"}`}
               onClick={toggleMenu}
               aria-expanded={menuAberto}
               type="button"
@@ -144,118 +138,54 @@ function App() {
               {menuAberto ? "✕" : "☰"}
             </button>
 
-            <ul className={`menuItems ${menuAberto ? "visivel" : "oculto"}`}>
-              <li>
-                <Link to="/scleenkr/" className="btns" onClick={fecharMenu}>
-                  PDV
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/scleenkr/relatorios"
-                  className="btns"
-                  onClick={fecharMenu}
-                >
-                  Vendas
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/scleenkr/produtos"
-                  className="btns"
-                  onClick={fecharMenu}
-                >
-                  Produtos
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/scleenkr/gerarcupom"
-                  className="btns"
-                  onClick={fecharMenu}
-                >
-                  Cupom
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/scleenkr/atendentes_sessao"
-                  className="btns"
-                  onClick={fecharMenu}
-                >
-                  Atendentes/Sessão
-                </Link>
-              </li>
+            {/* Dropdown com animação via Tailwind */}
+            <ul 
+              className={`absolute top-full right-0 mt-2 bg-[#1a1a1a] border border-[#3b3b3b] rounded-lg shadow-[0_4px_15px_rgba(0,0,0,0.5)] p-2.5 min-w-[200px] list-none flex flex-col gap-1.5 z-50 transition-all duration-200 origin-top-right
+              ${menuAberto ? "opacity-100 scale-100 visible" : "opacity-0 scale-95 invisible"}`}
+            >
+              {[
+                { path: "/scleenkr/", label: "PDV" },
+                { path: "/scleenkr/relatorios", label: "Vendas" },
+                { path: "/scleenkr/produtos", label: "Produtos" },
+                { path: "/scleenkr/gerarcupom", label: "Cupom" },
+                { path: "/scleenkr/atendentes_sessao", label: "Atendentes/Sessão" },
+              ].map((link, index) => (
+                <li key={index} className="w-full">
+                  <Link
+                    to={link.path}
+                    className="block w-full no-underline bg-[#2a2a2a] text-[#bacbd9] border border-[#3b3b3b] rounded-md px-3.5 py-2.5 text-[14px] transition-all duration-200 cursor-pointer hover:bg-[#3b3b3b] hover:text-scleenkr-primary hover:border-scleenkr-primary active:translate-y-px"
+                    onClick={fecharMenu}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
+
         </div>
       </header>
 
-      <main onClick={fecharMenu}>
+      {/* MAIN CONTENT */}
+      <main className="w-screen h-[88%] flex items-center justify-center bg-scleenkr-bg" onClick={fecharMenu}>
         <Routes>
-          <Route
-            path="/scleenkr/"
-            element={
-              <ComponenteVendas2
-                somStatus={statusSom}
-                sessaoAtual={sessaoAtual}
-                temAtendentes={temAtendentes}
-                empresaGlobal={empresaSelecionada}
-              />
-            }
-          />
-
-          <Route
-            path="/scleenkr/relatorios"
-            element={
-              <Relatorios
-                empresaSelecionada={empresaSelecionada}
-                somStatus={statusSom}
-              />
-            }
-          />
-          <Route
-            path="/scleenkr/produtos"
-            element={
-              <Produtos
-                $empresaSelecionada={empresaSelecionada}
-                somStatus={statusSom}
-              />
-            }
-          />
-          <Route
-            path="/scleenkr/gerarcupom"
-            element={
-              <GerarCupom
-                empresaSelecionada={empresaSelecionada}
-                somStatus={statusSom}
-              />
-            }
-          />
-
-          <Route
-            path="/scleenkr/atendentes_sessao"
-            element={
-              <CadastroAtendentes
-                empresaSelecionada={empresaSelecionada}
-                somStatus={statusSom}
-                onAtualizarEmpresa={carregarDadosEmpresa}
-                onResetEstado={resetarSistemaLocal}
-                buscarSessaoAtual={buscarSessaoAtual}
-              />
-            }
-          />
-
+          <Route path="/scleenkr/" element={<ComponenteVendas2 somStatus={statusSom} sessaoAtual={sessaoAtual} temAtendentes={temAtendentes} empresaGlobal={empresaSelecionada} />} />
+          <Route path="/scleenkr/relatorios" element={<Relatorios empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
+          <Route path="/scleenkr/produtos" element={<Produtos $empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
+          <Route path="/scleenkr/gerarcupom" element={<GerarCupom empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
+          <Route path="/scleenkr/atendentes_sessao" element={<CadastroAtendentes empresaSelecionada={empresaSelecionada} somStatus={statusSom} onAtualizarEmpresa={carregarDadosEmpresa} onResetEstado={resetarSistemaLocal} buscarSessaoAtual={buscarSessaoAtual} />} />
           <Route path="*" element={<Navigate to="/scleenkr/" />} />
         </Routes>
       </main>
 
-      <footer>
-        <div className="footer">
+      {/* FOOTER */}
+      <footer className="w-full h-[6%] flex items-center justify-center bg-[#1a1a1a] border-t border-[#333]">
+        <div className="flex justify-between items-center w-[98%] text-[#bacbd9] text-[14px]">
           <p>© $CLEENKR {dataAnooAtual} - Todos os direitos reservados</p>
         </div>
       </footer>
-    </AppStyled>
+
+    </div>
   );
 }
 
