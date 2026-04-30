@@ -8,7 +8,6 @@ import ListaProdutos from "./components/ListaProdutos";
 import ProdutosSelecionados from "./components/ProdutosSelecionados";
 import MetodosPagamento from "./components/MetodosPagamento";
 import ResumoVenda from "./components/ResumoVenda";
-import { ComponenteVendasStyled } from "./ComponenteVendasStyled";
 import { useRef, useCallback } from "react"; 
 import { useNavigate } from "react-router-dom";
 
@@ -128,56 +127,59 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
     inputValorRecebidoRef
   });
 
+  // Estilo compartilhado para os botões de bloqueio
+  const btnBloqueioClass = "py-3 px-6 rounded-md font-bold cursor-pointer text-base transition-all hover:-translate-y-0.5 text-white border-none";
+
   if (!empresaGlobal) {
     return (
-      <ComponenteVendasStyled>
-        <div className="container-bloqueio-caixa">
-          <div className="card-bloqueio" style={{ border: '2px solid #2196F3' }}>
-            <span className="icone-bloqueio">🏢</span>
-            <h2>Sistema não Configurado</h2>
-            <p>Os dados da empresa emissora foram removidos ou não existem.</p>
+      <div className="w-[98%] h-full flex justify-between gap-2.5 mx-auto">
+        <div className="w-full h-full flex items-center justify-center bg-background rounded-lg">
+          <div className="bg-card p-10 rounded-xl border-2 border-blue-500 text-center max-w-md shadow-2xl">
+            <span className="text-6xl block mb-5">🏢</span>
+            <h2 className="text-foreground mb-2.5 font-light text-2xl">Sistema não Configurado</h2>
+            <p className="text-muted-foreground mb-7 leading-relaxed">Os dados da empresa emissora foram removidos ou não existem.</p>
             <button 
-              className="btn-ir-atendentes" 
-              onClick={() => navigate("/everscash/atendentes_sessao")}
-              style={{ background: '#2196F3' }}
+              className={`${btnBloqueioClass} bg-blue-500 hover:bg-blue-600`}
+              onClick={() => navigate("/scleenkr/atendentes_sessao")}
             >
               Configurar Empresa
             </button>
           </div>
         </div>
-      </ComponenteVendasStyled>
+      </div>
     );
   }
 
   if (!temAtendentes || !sessaoAtual) {
     return (
-      <ComponenteVendasStyled>
-        <div className="container-bloqueio-caixa">
-          <div className="card-bloqueio">
-            <span className="icone-bloqueio">{!temAtendentes ? "👤" : "🔒"}</span>
-            <h2>Caixa Indisponível</h2>
-            <p>
+      <div className="w-[98%] h-full flex justify-between gap-2.5 mx-auto">
+        <div className="w-full h-full flex items-center justify-center bg-background rounded-lg">
+          <div className="bg-card p-10 rounded-xl border border-border text-center max-w-md shadow-2xl">
+            <span className="text-6xl block mb-5">{!temAtendentes ? "👤" : "🔒"}</span>
+            <h2 className="text-foreground mb-2.5 font-light text-2xl">Caixa Indisponível</h2>
+            <p className="text-muted-foreground mb-7 leading-relaxed">
               {!temAtendentes 
                 ? "Nenhum atendente cadastrado no sistema." 
                 : "É necessário abrir uma sessão de caixa para realizar vendas."}
             </p>
             <button 
-              className="btn-ir-atendentes" 
+              className={`${btnBloqueioClass} bg-primary text-primary-foreground hover:bg-primary/90`}
               onClick={() => navigate("/scleenkr/atendentes_sessao")}
             >
               {!temAtendentes ? "Cadastrar Atendente" : "Ir para Gestão de Caixa"}
             </button>
           </div>
         </div>
-      </ComponenteVendasStyled>
+      </div>
     );
   }
 
   return (
-    <ComponenteVendasStyled>
+    <div className="w-[98%] h-full flex justify-between gap-2.5 mx-auto [&_*::-webkit-scrollbar]:w-1.5 [&_*::-webkit-scrollbar]:h-1.5 [&_*::-webkit-scrollbar-track]:bg-secondary [&_*::-webkit-scrollbar-track]:rounded-full [&_*::-webkit-scrollbar-thumb]:bg-muted-foreground [&_*::-webkit-scrollbar-thumb]:rounded-full hover:[&_*::-webkit-scrollbar-thumb]:bg-gray-400">
       <ToastMensagem mensagem={mensagemFlutuante} onClose={() => setMensagemFlutuante("")} />
 
-      <div className="buttons">
+      {/* COLUNA ESQUERDA: CATÁLOGO */}
+      <div className="w-[35%] h-full flex flex-col border border-border shadow-sm p-2.5 rounded-lg overflow-hidden bg-card">
         <FiltrosCatalogo
           filtroBusca={filtroBusca}
           setFiltroBusca={setFiltroBusca}
@@ -193,13 +195,13 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
           inputFiltroBuscaRef={inputFiltroBuscaRef}
         />
 
-        <div className="buttons2">
+        <div className="overflow-y-auto grow h-[80%] mt-2">
           <ListaProdutos
             carregandoProdutos={carregandoProdutos}
             produtosFiltrados={produtosFiltrados}
             produtosSelecionados={produtosSelecionados}
             adicionarProduto={adicionarProduto}
-            corTextoBtn="#cecece"
+            corTextoBtn="#cecece" // Nota: No futuro, migraremos a ListaProdutos para aceitar "text-foreground" em vez de hex!
             somClick={tocarSomProduto}
             modoOrganizacao={modoOrganizacao}
             setModoOrganizacao={setModoOrganizacao}
@@ -208,7 +210,8 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
         </div>
       </div>
 
-      <div className="controles">
+      {/* COLUNA DIREITA: CAIXA E PAGAMENTO */}
+      <div className="w-[65%] h-full border border-border p-2.5 flex items-center justify-between shadow-md rounded-lg relative overflow-hidden gap-2.5 bg-card">
         {produtosSelecionados.length > 0 ? (
           <>
             <ProdutosSelecionados
@@ -221,8 +224,8 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
               somClickMenos={tocarSomProdutoMenos}
             />
 
-            <div className="pagamento">
-              <div className="metodos-pagamento-container">
+            <div className="h-full w-[67%] flex justify-between gap-2">
+              <div className="flex flex-col gap-4 w-[49%] justify-between overflow-y-auto">
                 <MetodosPagamento
                   metodoPagamento={metodoPagamento}
                   setMetodoPagamento={setMetodoPagamento}
@@ -240,7 +243,7 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
                 />
               </div>
 
-              <div className="resumo-pagamento-container">
+              <div className="mt-auto bg-secondary p-4 rounded-lg border border-border w-[49%] h-full flex flex-col justify-between">
                 <ResumoVenda
                   metodoPagamento={metodoPagamento}
                   metodoSecundario={metodoSecundario}
@@ -259,24 +262,31 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
             </div>
           </>
         ) : (
-          <div className="espera-venda">
-            <div className="logo-espera">{empresaGlobal?.nome_fantasia?.toUpperCase() || "EVERSCASH"}</div>
-            <div className="letreiro-container">
-              <h2 className="letreiro-status">CAIXA LIVRE</h2>
+          <div className="flex flex-col items-center justify-center w-full h-full text-center gap-5">
+            <div className="text-3xl font-extrabold text-muted-foreground tracking-widest opacity-50 uppercase">
+              {empresaGlobal?.nome_fantasia || "EVERSCASH"}
             </div>
-            <div className="instrucoes-venda">
+            
+            <div>
+              {/* O animate-pulse do Tailwind cria aquele efeito de "respiração" do status livre */}
+              <h2 className="bg-success text-success-foreground px-12 py-4 rounded-full text-2xl font-bold shadow-lg shadow-success/40 animate-pulse">
+                CAIXA LIVRE
+              </h2>
+            </div>
+            
+            <div className="text-muted-foreground text-base flex flex-col gap-4 w-[60%]">
               <p>Selecione produtos no catálogo para iniciar uma venda</p>
-              <div className="atalhos-dica">
-                <span><strong>[MOUSE]</strong> Selecionar Produtos</span>
-                <span><strong>[BACKSPACE]</strong> Excluir Produtos</span>
-                <span><strong>[F2]</strong> Métodos de Pagamento</span>
-                <span><strong>[ESC]</strong> Cancelar Venda</span>
-                <span><strong>[ENTER]</strong> Finalizar Venda</span>
+              <div className="flex justify-center gap-2.5 text-sm text-muted-foreground flex-wrap">
+                <span><strong className="text-primary mr-1">[MOUSE]</strong> Selecionar Produtos</span>
+                <span><strong className="text-primary mr-1">[BACKSPACE]</strong> Excluir Produtos</span>
+                <span><strong className="text-primary mr-1">[F2]</strong> Métodos de Pagamento</span>
+                <span><strong className="text-primary mr-1">[ESC]</strong> Cancelar Venda</span>
+                <span><strong className="text-primary mr-1">[ENTER]</strong> Finalizar Venda</span>
               </div>
             </div>
           </div>
         )}
       </div>
-    </ComponenteVendasStyled>
+    </div>
   );
 }
