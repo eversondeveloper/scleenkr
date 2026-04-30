@@ -21,7 +21,7 @@ export function Header({
         {empresaSelecionada && (
           <div className="flex items-center gap-2.5">
             {/* Mantive o fundo #252525 exclusivo desta badge para não perder o contraste original */}
-            <div className="text-text-muted-foreground text-[13px] px-3 py-1 bg-[#252525] rounded border border-border uppercase tracking-[0.5px]">
+            <div className="text-text-muted-foreground text-[13px] px-3 py-1 bg-muted rounded border border-border uppercase tracking-[0.5px]">
               {empresaSelecionada.nome_fantasia || empresaSelecionada.razao_social}
             </div>
 
