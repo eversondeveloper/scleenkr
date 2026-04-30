@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { RelatoriosStyled } from "./RelatoriosStyled";
 import { ModalRetirada } from "./components/ModalRetirada";
 import { ModalEdicaoRetirada } from "./components/ModalEdicaoRetirada";
 import { ModalEdicaoVenda } from "./components/ModalEdicaoVenda";
@@ -101,7 +100,6 @@ export const Relatorios = () => {
   }, [filtroDataInicio, filtroDataFim, buscarVendas, buscarRetiradas, buscarObservacoesNoPeriodo]);
 
   // --- HANDLERS DE VENDAS ---
-
   const handleDeletarVenda = async (id) => {
     if (!window.confirm(`⚠️ EXCLUSÃO DEFINITIVA: Deseja apagar a Venda ID: ${id}?`)) return;
     const sucesso = await deletarVenda(id);
@@ -129,7 +127,6 @@ export const Relatorios = () => {
   };
 
   // --- HANDLERS DE LIMPEZA EM MASSA ---
-
   const handleDeletarFiltrados = async () => {
     const inicio = filtroDataInicio;
     const fim = filtroDataFim || filtroDataInicio;
@@ -157,7 +154,7 @@ export const Relatorios = () => {
       if (window.confirm("❗ ESTA AÇÃO NÃO PODE SER DESFEITA. Todos os dados financeiros sumirão. Continuar?")) {
         const sucesso = await limparHistoricoTotal();
         if (sucesso) {
-          window.location.reload(); // Recarrega para limpar todos os estados globais
+          window.location.reload(); 
         } else {
           alert("Erro técnico ao tentar resetar o banco de dados.");
         }
@@ -166,7 +163,6 @@ export const Relatorios = () => {
   };
 
   // --- HANDLERS DE RETIRADAS ---
-
   const handleRegistrarRetirada = async () => {
     try {
       await registrarRetirada();
@@ -201,7 +197,6 @@ export const Relatorios = () => {
   };
 
   // --- HANDLERS DE OBSERVAÇÕES ---
-
   const handleAbrirObsParaData = (data, texto = "") => {
     setDataEdicao(data);
     setTextoEdicao(texto);
@@ -233,7 +228,6 @@ export const Relatorios = () => {
   };
 
   // --- PDF ---
-
   const handleGerarPDF = () => {
     if (carregandoEmpresa) return;
     gerarPDF({
@@ -255,104 +249,102 @@ export const Relatorios = () => {
   };
 
   // --- RENDERIZAÇÃO ---
-
   if (carregando || carregandoEmpresa) {
-    return <RelatoriosStyled><div className="loading-container"><h1>Sincronizando Relatórios...</h1></div></RelatoriosStyled>;
+    return (
+      <div className="flex w-[98%] h-full my-5 mx-auto items-center justify-center bg-card rounded-xl shadow-2xl border border-border">
+        <h1 className="text-3xl font-light text-muted-foreground animate-pulse">Sincronizando Relatórios...</h1>
+      </div>
+    );
   }
 
   return (
-    <RelatoriosStyled>
-      <div className="cabecalho-relatorio">
-        <h1>Relatório Financeiro</h1>
-        <p>Acompanhamento de vendas, retiradas e fluxo de caixa.</p>
+    <div className="flex flex-col w-[98%] h-[calc(100vh-60px)] my-5 mx-auto p-6 bg-background rounded-xl shadow-2xl border border-border overflow-y-auto box-border [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50">
+      
+      <div className="w-full text-center mb-8 pb-4 border-b border-border">
+        <h1 className="text-3xl font-light text-foreground mb-2 m-0">Relatório Financeiro</h1>
+        <p className="text-base text-muted-foreground m-0">Acompanhamento de vendas, retiradas e fluxo de caixa.</p>
       </div>
 
-      <SecaoFiltros
-        filtroDataInicio={filtroDataInicio}
-        setFiltroDataInicio={setFiltroDataInicio}
-        filtroDataFim={filtroDataFim}
-        setFiltroDataFim={setFiltroDataFim}
-        filtroMetodosPagamento={filtroMetodosPagamento}
-        toggleMetodoPagamento={toggleMetodoPagamento}
-        limparFiltros={limparFiltros}
-        limparFiltrosMetodos={limparFiltrosMetodos}
-        METODOS_PAGAMENTO={METODOS_PAGAMENTO}
-      />
+      <div className="flex flex-col w-full">
+        
+        <SecaoFiltros
+          filtroDataInicio={filtroDataInicio}
+          setFiltroDataInicio={setFiltroDataInicio}
+          filtroDataFim={filtroDataFim}
+          setFiltroDataFim={setFiltroDataFim}
+          filtroMetodosPagamento={filtroMetodosPagamento}
+          toggleMetodoPagamento={toggleMetodoPagamento}
+          limparFiltros={limparFiltros}
+          limparFiltrosMetodos={limparFiltrosMetodos}
+          METODOS_PAGAMENTO={METODOS_PAGAMENTO}
+        />
 
-      <SecaoResumo
-        filtroDataInicio={filtroDataInicio}
-        filtroDataFim={filtroDataFim}
-        filtroMetodosPagamento={filtroMetodosPagamento}
-        quantidadeVendas={quantidadeVendas}
-        totalVendasBruto={totalVendasBruto}
-        totalValorPago={totalValorPago}
-        totalTroco={totalTroco}
-        totalRetiradas={totalRetiradas}
-        totalLiquido={totalLiquido}
-        totaisPorMetodo={totaisPorMetodo}
-        dadosEmpresa={dadosEmpresa}
-      />
+        <SecaoResumo
+          filtroDataInicio={filtroDataInicio}
+          filtroDataFim={filtroDataFim}
+          filtroMetodosPagamento={filtroMetodosPagamento}
+          quantidadeVendas={quantidadeVendas}
+          totalVendasBruto={totalVendasBruto}
+          totalValorPago={totalValorPago}
+          totalTroco={totalTroco}
+          totalRetiradas={totalRetiradas}
+          totalLiquido={totalLiquido}
+          totaisPorMetodo={totaisPorMetodo}
+          dadosEmpresa={dadosEmpresa}
+        />
 
-      <SecaoDelecao
-        onNovaRetirada={() => setMostrarModal(true)}
-        onGerarPDF={handleGerarPDF}
-        gerandoPDF={gerandoPDF}
-        vendasFiltradas={vendasFiltradas}
-        retiradasFiltradas={retiradasFiltradas}
-        vendas={vendas}
-        onDeletarFiltrados={handleDeletarFiltrados}
-        onDeletarTudo={handleDeletarTudo} 
-        onAbrirObservacao={handleBotaoPrincipalObservacao}
-        temObservacao={observacoes.length > 0}
-      />
+        <SecaoDelecao
+          onNovaRetirada={() => setMostrarModal(true)}
+          onGerarPDF={handleGerarPDF}
+          gerandoPDF={gerandoPDF}
+          vendasFiltradas={vendasFiltradas}
+          retiradasFiltradas={retiradasFiltradas}
+          vendas={vendas}
+          onDeletarFiltrados={handleDeletarFiltrados}
+          onDeletarTudo={handleDeletarTudo} 
+          onAbrirObservacao={handleBotaoPrincipalObservacao}
+          temObservacao={observacoes.length > 0}
+        />
 
-      <TabelaVendasComponent
-        vendasFiltradas={vendasFiltradas}
-        quantidadeVendas={quantidadeVendas}
-        totalVendasBruto={totalVendasBruto}
-        onDeletarVenda={handleDeletarVenda}
-        onEditarVenda={handleEditarVenda}
-      />
+        <TabelaVendasComponent
+          vendasFiltradas={vendasFiltradas}
+          quantidadeVendas={quantidadeVendas}
+          totalVendasBruto={totalVendasBruto}
+          onDeletarVenda={handleDeletarVenda}
+          onEditarVenda={handleEditarVenda}
+        />
 
-      <TabelaRetiradasComponent
-        retiradasFiltradas={retiradasFiltradas}
-        filtroDataInicio={filtroDataInicio}
-        filtroDataFim={filtroDataFim}
-        onEditarRetirada={abrirModalEdicao}
-        onDeletarRetirada={handleDeletarRetirada}
-      />
+        <TabelaRetiradasComponent
+          retiradasFiltradas={retiradasFiltradas}
+          filtroDataInicio={filtroDataInicio}
+          filtroDataFim={filtroDataFim}
+          onEditarRetirada={abrirModalEdicao}
+          onDeletarRetirada={handleDeletarRetirada}
+        />
 
+      </div>
+
+      {/* Seção de Observações */}
       {observacoes.length > 0 && (
-        <div style={{ width: '100%', marginTop: '30px', marginBottom: '20px' }}>
-          <h2 style={{ color: '#E0E0E0', fontSize: '20px', marginBottom: '15px' }}>📝 Observações do Período</h2>
+        <div className="w-full mt-8 mb-5">
+          <h2 className="text-foreground text-xl mb-4 font-semibold">📝 Observações do Período</h2>
           {observacoes.map((obs) => {
              const d = obs.data_observacao.split('T')[0].split('-');
              const dataFormatada = `${d[2]}/${d[1]}/${d[0]}`;
 
              return (
-              <div key={obs.data_observacao} className="secao-observacoes" style={{ marginBottom: '20px' }}>
-                <div className="obs-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <h3>Data: {dataFormatada}</h3>
+              <div key={obs.data_observacao} className="bg-card p-5 mb-5 rounded-lg w-full border border-border shadow-sm">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-muted-foreground text-base m-0 font-bold">Data: {dataFormatada}</h3>
                   <button 
-                    className="btn-editar" 
-                    style={{ backgroundColor: '#FF9800', color: '#1e1e1e', border: 'none', padding: '5px 12px', borderRadius: '4px', cursor: 'pointer' }}
+                    className="bg-warning text-warning-foreground border-none py-1.5 px-3 rounded cursor-pointer transition-colors hover:bg-warning/90 font-bold text-xs shadow-sm"
                     onClick={() => handleAbrirObsParaData(obs.data_observacao.split('T')[0], obs.texto)}
                   >
                     Editar Nota
                   </button>
                 </div>
                 <div 
-                  className="visualizacao-obs-html"
-                  style={{ 
-                    padding: '15px 15px 15px 25px',
-                    backgroundColor: '#1e1e1e', 
-                    borderRadius: '4px', 
-                    borderLeft: '4px solid #64ff8a',
-                    color: '#64ff8a',
-                    fontSize: '14px',
-                    lineHeight: '1.6',
-                    marginTop: '10px'
-                  }}
+                  className="p-4 pl-6 bg-background rounded-md border-l-4 border-success text-success text-sm leading-relaxed mt-2.5"
                   dangerouslySetInnerHTML={{ __html: obs.texto }}
                 />
               </div>
@@ -396,6 +388,6 @@ export const Relatorios = () => {
         vendaEditando={vendaEditando}
         onAtualizar={handleAtualizarVenda}
       />
-    </RelatoriosStyled>
+    </div>
   );
 };
