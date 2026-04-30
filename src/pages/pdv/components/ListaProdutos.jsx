@@ -1,5 +1,5 @@
 /* eslint-disable no-case-declarations */
-import Button from "./Button";
+import Button from "../../../components/ui/Button";
 import { ListaProdutosStyled } from "./ListaProdutosStyled";
 
 const ListaProdutos = ({
