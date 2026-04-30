@@ -163,7 +163,7 @@ export default function ComponenteVendas({ sessaoAtual, temAtendentes, empresaGl
             </p>
             <button 
               className="btn-ir-atendentes" 
-              onClick={() => navigate("/everscash/atendentes_sessao")}
+              onClick={() => navigate("/scleenkr/atendentes_sessao")}
             >
               {!temAtendentes ? "Cadastrar Atendente" : "Ir para Gestão de Caixa"}
             </button>

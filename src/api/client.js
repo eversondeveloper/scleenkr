@@ -17,19 +17,25 @@ const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 /**
  * Monta os headers padrão para cada requisição.
- * Futuramente: adicionar Authorization Bearer aqui.
+ * Agora ele busca dinamicamente o token de autenticação.
  */
 function headersDefault() {
-  return {
+  const headers = {
     'Content-Type': 'application/json',
   };
+
+  // Busca o token salvo (futuramente a tela de login fará esse salvamento)
+  const token = localStorage.getItem('scleenkr_token');
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  return headers;
 }
 
 /**
  * Executa o fetch e lança um erro legível se a resposta não for 2xx.
- * @param {string} path - Caminho relativo à BASE_URL (ex.: '/empresas')
- * @param {RequestInit} options - Opções do fetch
- * @returns {Promise<any>} - Dados JSON da resposta
  */
 async function request(path, options = {}) {
   const url = `${BASE_URL}${path}`;
@@ -57,21 +63,9 @@ async function request(path, options = {}) {
 }
 
 export const api = {
-  /** GET /path */
   get: (path) => request(path, { method: 'GET' }),
-
-  /** POST /path com body JSON */
-  post: (path, body) =>
-    request(path, { method: 'POST', body: JSON.stringify(body) }),
-
-  /** PUT /path com body JSON */
-  put: (path, body) =>
-    request(path, { method: 'PUT', body: JSON.stringify(body) }),
-
-  /** PATCH /path com body JSON */
-  patch: (path, body) =>
-    request(path, { method: 'PATCH', body: JSON.stringify(body) }),
-
-  /** DELETE /path */
+  post: (path, body) => request(path, { method: 'POST', body: JSON.stringify(body) }),
+  put: (path, body) => request(path, { method: 'PUT', body: JSON.stringify(body) }),
+  patch: (path, body) => request(path, { method: 'PATCH', body: JSON.stringify(body) }),
   delete: (path) => request(path, { method: 'DELETE' }),
 };
