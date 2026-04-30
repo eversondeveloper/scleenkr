@@ -1,7 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useGerarOrcamento } from "../hooks/useGerarOrcamento";
 import somCancelar from "/sounds/efeitos/desselecionar.mp3";
-import { ProdutosSelecionadosStyled } from "./ProdutosSelecionadosStyled";
 import { formatarParaReal } from "../hooks/useVendas";
 
 const ProdutosSelecionados = ({
@@ -90,12 +89,14 @@ const ProdutosSelecionados = ({
   );
 
   return (
-    <ProdutosSelecionadosStyled>
-      <div className="cabecalho-carrinho">
-        <div className="titulo-grupo">
-          <h2>CARRINHO</h2>
+    <div className="w-[32%] h-full flex flex-col bg-background border border-border rounded-2xl overflow-hidden">
+      
+      {/* CABEÇALHO */}
+      <div className="p-4 bg-card border-b border-border flex justify-between items-center shrink-0">
+        <div className="flex items-center gap-3">
+          <h2 className="text-sm text-muted-foreground tracking-wide m-0 font-bold">CARRINHO</h2>
           <button 
-            className="btn-limpar-carrinho" 
+            className="bg-destructive/10 border border-destructive/30 text-destructive text-[9px] font-extrabold px-2.5 py-1 rounded-md cursor-pointer transition-all hover:bg-destructive hover:text-destructive-foreground" 
             onClick={(e) => {
                 e.stopPropagation();
                 if(window.confirm("Esvaziar carrinho?")) produtosSelecionados.forEach(p => removerProduto(p.idUnico));
@@ -105,14 +106,20 @@ const ProdutosSelecionados = ({
             LIMPAR
           </button>
         </div>
-        <span className="contador-itens">{produtosSelecionados.length} ITENS</span>
+        <span className="bg-primary text-primary-foreground text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+          {produtosSelecionados.length} ITENS
+        </span>
       </div>
 
-      <div className="lista-produtos-carrinho" ref={listaRef}>
+      {/* LISTA DE PRODUTOS */}
+      <div 
+        className="flex-1 overflow-y-auto p-2.5 flex flex-col gap-2.5 scroll-smooth [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50" 
+        ref={listaRef}
+      >
         {produtosSelecionados.length === 0 ? (
-          <div className="carrinho-vazio-mensagem">
-            <div className="icone-vazio">🛒</div>
-            <p>Seu carrinho está vazio</p>
+          <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-10">
+            <div className="text-4xl mb-2.5 opacity-20">🛒</div>
+            <p className="italic m-0">Seu carrinho está vazio</p>
           </div>
         ) : (
           produtosSelecionados.map((produto) => {
@@ -123,15 +130,17 @@ const ProdutosSelecionados = ({
                 : produto.quantidade.toString().replace(".", ",");
 
             return (
-              <div className="card-produto-selecionado" key={produto.idUnico}>
-                <div className="info-produto-topo">
-                  <div className="textos-produto">
-                    <span className="categoria-label">{produto.categoria}</span>
-                    <h4 className="descricao-titulo">{produto.descricao.toUpperCase()}</h4>
+              <div className="bg-card border border-border rounded-xl p-3 transition-colors hover:border-muted-foreground/50" key={produto.idUnico}>
+                
+                {/* Info Topo */}
+                <div className="flex justify-between mb-3">
+                  <div>
+                    <span className="text-[9px] text-primary font-bold uppercase">{produto.categoria}</span>
+                    <h4 className="text-[13px] text-foreground m-0 mt-0.5 font-medium">{produto.descricao.toUpperCase()}</h4>
                   </div>
                   <button 
                     type="button"
-                    className="btn-remover-item" 
+                    className="bg-transparent border-none text-muted-foreground cursor-pointer text-base hover:text-destructive transition-colors ml-2" 
                     onClick={(e) => { 
                         e.stopPropagation();
                         somCancel(); 
@@ -143,11 +152,15 @@ const ProdutosSelecionados = ({
                   </button>
                 </div>
 
-                <div className="controles-produto-baixo">
-                  <div className="secao-quantidade-completa">
-                    <div className="pill-seletor-quantidade">
+                {/* Controles Baixo */}
+                <div className="flex justify-between items-center bg-background p-2.5 rounded-lg gap-2.5">
+                  <div className="flex flex-col gap-1.5 flex-1">
+                    
+                    {/* Seletor Quantidade Pill */}
+                    <div className="flex items-center bg-secondary/30 rounded-full border border-border p-0.5 max-w-[100px]">
                       <button 
                         type="button" 
+                        className="bg-transparent border-none text-primary font-bold cursor-pointer w-7 h-7 text-base flex items-center justify-center transition-colors hover:text-primary/80"
                         onClick={(e) => { 
                             e.stopPropagation();
                             handleAjusteQuantidade(produto.idUnico, -1); 
@@ -156,7 +169,7 @@ const ProdutosSelecionados = ({
                       >-</button>
                       <input
                         type="text"
-                        className="input-quantidade-campo"
+                        className="w-full flex-1 min-w-0 bg-transparent border-none text-foreground text-center text-xs font-bold outline-none"
                         inputMode="decimal"
                         value={valorParaExibir}
                         onFocus={(e) => {
@@ -184,6 +197,7 @@ const ProdutosSelecionados = ({
                       />
                       <button 
                         type="button" 
+                        className="bg-transparent border-none text-primary font-bold cursor-pointer w-7 h-7 text-base flex items-center justify-center transition-colors hover:text-primary/80"
                         onClick={(e) => { 
                             e.stopPropagation();
                             handleAjusteQuantidade(produto.idUnico, 1); 
@@ -192,33 +206,44 @@ const ProdutosSelecionados = ({
                       >+</button>
                     </div>
                     
-                    <div className="atalhos-quantidade">
-                      <button type="button" onClick={(e) => { e.stopPropagation(); handleAjusteInteligente(produto.idUnico, 5); somClick(); }}>5</button>
-                      <button type="button" onClick={(e) => { e.stopPropagation(); handleAjusteInteligente(produto.idUnico, 10); somClick(); }}>10</button>
-                      <button type="button" onClick={(e) => { e.stopPropagation(); handleAjusteInteligente(produto.idUnico, 50); somClick(); }}>50</button>
+                    {/* Atalhos Rápidos */}
+                    <div className="grid grid-cols-4 gap-1">
+                      {[5, 10, 50].map((val) => (
+                        <button 
+                          key={val}
+                          type="button" 
+                          className="bg-card border border-border text-muted-foreground text-[9px] font-extrabold py-1 px-0.5 rounded cursor-pointer transition-all hover:bg-accent hover:text-primary hover:border-primary active:scale-95 active:bg-primary active:text-primary-foreground"
+                          onClick={(e) => { e.stopPropagation(); handleAjusteInteligente(produto.idUnico, val); somClick(); }}
+                        >
+                          {val}
+                        </button>
+                      ))}
                     </div>
+
                   </div>
                   
-                  <div className="precos-item-container">
-                    <span className="unitario-label">Un: R$ {formatarParaReal(valorItem)}</span>
-                    <strong className="subtotal-item">R$ {formatarParaReal(totalDoItem)}</strong>
+                  <div className="text-right min-w-fit">
+                    <span className="text-[10px] text-muted-foreground block">Un: R$ {formatarParaReal(valorItem)}</span>
+                    <strong className="text-sm text-success font-bold">R$ {formatarParaReal(totalDoItem)}</strong>
                   </div>
                 </div>
+
               </div>
             );
           })
         )}
       </div>
 
+      {/* RODAPÉ E BOTÃO DE ORÇAMENTO */}
       {produtosSelecionados.length > 0 && (
-        <div className="rodape-carrinho">
-          <div className="linha-total-geral">
-            <span>TOTAL</span>
-            <strong>R$ {formatarParaReal(totalGeral)}</strong>
+        <div className="p-4 bg-card border-t border-border shrink-0">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-muted-foreground text-xs font-bold">TOTAL</span>
+            <strong className="text-foreground text-xl font-extrabold">R$ {formatarParaReal(totalGeral)}</strong>
           </div>
           <button
             type="button"
-            className="btn-acao-orcamento"
+            className="w-full p-3.5 rounded-xl border-none bg-primary text-primary-foreground font-extrabold cursor-pointer transition-all hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => setMostrarModalOrcamento(true)}
             disabled={gerandoOrcamento}
           >
@@ -227,23 +252,27 @@ const ProdutosSelecionados = ({
         </div>
       )}
 
+      {/* MODAL DE ORÇAMENTO */}
       {mostrarModalOrcamento && (
-        <div className="modal-overlay-moderno" onClick={(e) => setMostrarModalOrcamento(false)}>
-          <div className="modal-conteudo-moderno" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-cabecalho-moderno">
-              <div className="titulo-modal">
-                <span className="icone-modal">📄</span>
-                <h3>DADOS DO ORÇAMENTO</h3>
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-sm flex items-center justify-center z-3000" onClick={() => setMostrarModalOrcamento(false)}>
+          <div className="bg-background border border-border rounded-3xl w-[90%] max-w-[450px] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            
+            <div className="p-5 bg-card flex justify-between items-center border-b border-border">
+              <div className="flex items-center gap-2.5">
+                <span className="text-xl">📄</span>
+                <h3 className="m-0 text-base text-foreground tracking-wide font-bold">DADOS DO ORÇAMENTO</h3>
               </div>
-              <button className="btn-fechar-x" onClick={() => setMostrarModalOrcamento(false)}>✕</button>
+              <button className="bg-transparent border-none text-muted-foreground cursor-pointer text-xl hover:text-destructive transition-colors" onClick={() => setMostrarModalOrcamento(false)}>✕</button>
             </div>
-            <div className="modal-corpo-moderno">
-              <div className="grid-campos">
-                <div className="campo-entrada">
-                  <label>NOME DO CLIENTE</label>
+
+            <div className="p-6 flex flex-col gap-5">
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] text-primary font-extrabold uppercase tracking-wide">NOME DO CLIENTE</label>
                   <input 
                     type="text" 
                     placeholder="Ex: João Silva" 
+                    className="p-3.5 bg-card border border-input rounded-xl text-foreground text-sm outline-none transition-colors focus:border-primary focus:bg-accent"
                     value={dadosCliente.nome} 
                     onChange={(e) => setDadosCliente({...dadosCliente, nome: e.target.value})} 
                     onKeyDown={(e) => {
@@ -253,11 +282,12 @@ const ProdutosSelecionados = ({
                     autoFocus
                   />
                 </div>
-                <div className="campo-entrada">
-                  <label>TELEFONE / WHATSAPP</label>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] text-primary font-extrabold uppercase tracking-wide">TELEFONE / WHATSAPP</label>
                   <input 
                     type="text" 
                     placeholder="(00) 00000-0000" 
+                    className="p-3.5 bg-card border border-input rounded-xl text-foreground text-sm outline-none transition-colors focus:border-primary focus:bg-accent"
                     value={dadosCliente.telefone} 
                     onChange={(e) => setDadosCliente({...dadosCliente, telefone: e.target.value})} 
                     onKeyDown={(e) => {
@@ -267,22 +297,25 @@ const ProdutosSelecionados = ({
                   />
                 </div>
               </div>
-              <div className="resumo-total-modal">
-                <div className="info-total">
-                  <span>TOTAL ESTIMADO:</span>
-                  <strong>R$ {formatarParaReal(totalGeral)}</strong>
+              
+              <div className="p-5 bg-card rounded-2xl border border-border text-center">
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-muted-foreground text-xs font-semibold">TOTAL ESTIMADO:</span>
+                  <strong className="text-success text-2xl font-extrabold">R$ {formatarParaReal(totalGeral)}</strong>
                 </div>
-                <p className="dica-validade">Válido por 30 dias após a emissão</p>
+                <p className="text-[10px] text-muted-foreground m-0">Válido por 30 dias após a emissão</p>
               </div>
             </div>
-            <div className="modal-rodape-moderno">
-              <button className="btn-voltar-modal" onClick={() => setMostrarModalOrcamento(false)}>VOLTAR [ESC]</button>
-              <button className="btn-confirmar-pdf" onClick={confirmarGerarOrcamento}>GERAR PDF</button>
+
+            <div className="p-5 bg-card flex gap-3 border-t border-border">
+              <button className="flex-1 p-3.5 rounded-xl border-none font-extrabold text-sm cursor-pointer transition-colors bg-secondary text-secondary-foreground hover:bg-muted-foreground/20 hover:text-foreground" onClick={() => setMostrarModalOrcamento(false)}>VOLTAR [ESC]</button>
+              <button className="flex-1 p-3.5 rounded-xl border-none font-extrabold text-sm cursor-pointer transition-colors bg-primary text-primary-foreground hover:bg-primary/90" onClick={confirmarGerarOrcamento}>GERAR PDF</button>
             </div>
+
           </div>
         </div>
       )}
-    </ProdutosSelecionadosStyled>
+    </div>
   );
 };
 
