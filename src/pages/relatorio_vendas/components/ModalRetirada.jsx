@@ -1,4 +1,3 @@
-// components/ModalRetirada.jsx
 import React from 'react';
 
 export const ModalRetirada = ({
@@ -25,30 +24,21 @@ export const ModalRetirada = ({
 
     onRegistrar();
   };
-  
-  // Estilo comum para inputs de formulário
-  const inputStyle = {
-    width: '100%',
-    padding: '8px',
-    backgroundColor: '#1e1e1e',
-    color: '#BACBD9',
-    border: '1px solid #555',
-    borderRadius: '4px',
-  };
-
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content" style={{ maxWidth: '500px' }}>
-        <h3>Nova Retirada do Caixa</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-5 animate-in fade-in duration-200">
+      <div className="bg-[#2d2d2d] p-6 rounded-lg w-full max-w-[500px] border border-[#444] shadow-2xl">
+        <h3 className="text-[#E0E0E0] mt-0 mb-5 pb-3 border-b border-[#333] text-[20px] font-medium">
+          Nova Retirada do Caixa
+        </h3>
 
-        <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#2a2a2a', borderRadius: '5px' }}>
-          <h4 style={{ margin: '0 0 10px 0', color: '#64ff8a' }}>Informações de Data e Hora</h4>
+        <div className="mb-5 p-4 bg-[#2a2a2a] rounded-[5px]">
+          <h4 className="m-0 mb-2.5 text-[#64ff8a] font-bold text-sm">Informações de Data e Hora</h4>
           
-          <div style={{ display: 'flex', gap: '15px' }}>
+          <div className="flex gap-4">
             {/* 1. SELETOR DE DATA */}
-            <div className="input-group" style={{ marginBottom: '10px', flex: 1 }}>
-              <label>Data:</label>
+            <div className="flex flex-col flex-1 gap-1">
+              <label className="text-[13px] text-muted-foreground">Data:</label>
               <input
                 type="date"
                 value={novaRetirada.dataRetirada}
@@ -58,13 +48,13 @@ export const ModalRetirada = ({
                     dataRetirada: e.target.value,
                   })
                 }
-                style={inputStyle}
+                className="w-full p-2 bg-[#1e1e1e] text-[#BACBD9] border border-[#555] rounded outline-none focus:border-[#FF9800] transition-colors"
               />
             </div>
             
-            {/* 2. SELETOR DE HORA (NOVO) */}
-            <div className="input-group" style={{ marginBottom: '10px', flex: 1 }}>
-              <label>Hora:</label>
+            {/* 2. SELETOR DE HORA */}
+            <div className="flex flex-col flex-1 gap-1">
+              <label className="text-[13px] text-muted-foreground">Hora:</label>
               <input
                 type="time"
                 value={novaRetirada.timeRetirada}
@@ -74,18 +64,18 @@ export const ModalRetirada = ({
                     timeRetirada: e.target.value,
                   })
                 }
-                style={inputStyle}
+                className="w-full p-2 bg-[#1e1e1e] text-[#BACBD9] border border-[#555] rounded outline-none focus:border-[#FF9800] transition-colors"
               />
             </div>
           </div>
 
-          <p style={{ margin: '5px 0 0 0', fontSize: '14px', color: '#BACBD9' }}>
+          <p className="m-0 mt-2 text-[14px] text-[#BACBD9]">
             Defina a data e hora exatas do evento.
           </p>
         </div>
 
-        <div className="input-group">
-          <label>Valor Retirado:</label>
+        <div className="flex flex-col gap-1 mb-4">
+          <label className="text-[13px] text-muted-foreground">Valor Retirado:</label>
           <input
             type="number"
             step="0.01"
@@ -97,12 +87,12 @@ export const ModalRetirada = ({
               })
             }
             placeholder="0.00"
-            style={inputStyle}
+            className="w-full p-2 bg-[#1e1e1e] text-[#BACBD9] border border-[#555] rounded outline-none focus:border-[#FF9800] transition-colors"
           />
         </div>
 
-        <div className="input-group">
-          <label>Motivo:</label>
+        <div className="flex flex-col gap-1 mb-4">
+          <label className="text-[13px] text-muted-foreground">Motivo:</label>
           <input
             type="text"
             value={novaRetirada.motivo}
@@ -110,52 +100,31 @@ export const ModalRetirada = ({
               setNovaRetirada({ ...novaRetirada, motivo: e.target.value })
             }
             placeholder="Ex: Compra de material, Pagamento de conta..."
-            style={inputStyle}
+            className="w-full p-2 bg-[#1e1e1e] text-[#BACBD9] border border-[#555] rounded outline-none focus:border-[#FF9800] transition-colors"
           />
         </div>
 
-        <div className="input-group">
-          <label>Observação (opcional):</label>
+        <div className="flex flex-col gap-1 mb-5">
+          <label className="text-[13px] text-muted-foreground">Observação (opcional):</label>
           <textarea
             value={novaRetirada.observacao}
             onChange={(e) =>
               setNovaRetirada({ ...novaRetirada, observacao: e.target.value })
             }
-            style={{
-              ...inputStyle,
-              minHeight: '80px',
-              resize: 'vertical',
-            }}
+            className="w-full p-2 bg-[#1e1e1e] text-[#BACBD9] border border-[#555] rounded min-h-[80px] resize-y outline-none focus:border-[#FF9800] transition-colors"
           />
         </div>
 
-        <div className="modal-actions">
+        <div className="flex gap-3 justify-end pt-5 border-t border-[#333]">
           <button 
             onClick={onClose} 
-            className="btn-secondary"
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#6c757d',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-            }}
+            className="px-4 py-2 bg-[#444] text-[#E0E0E0] font-medium rounded border-none cursor-pointer transition-colors hover:bg-[#555] active:scale-95 text-[14px]"
           >
             Cancelar
           </button>
           <button 
             onClick={handleRegistrar} 
-            className="btn-primary"
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#FF9800',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-            }}
+            className="px-4 py-2 bg-[#FF9800] text-[#1e1e1e] font-bold rounded border-none cursor-pointer transition-colors hover:bg-[#e68a00] active:scale-95 text-[14px]"
           >
             Registrar Retirada
           </button>
