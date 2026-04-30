@@ -1,5 +1,4 @@
 import React from 'react';
-import { TabelaVendas } from "../RelatoriosStyled";
 
 export const TabelaVendasComponent = ({
   vendasFiltradas,
@@ -40,187 +39,141 @@ export const TabelaVendasComponent = ({
   };
 
   return (
-    <div style={{ marginTop: "40px", width: "100%" }}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: "15px" 
-      }}>
-        <h2 style={{ margin: 0 }}>
+    <div className="mt-10 w-full">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="m-0 text-foreground text-xl font-semibold">
           Vendas Realizadas ({quantidadeVendas})
         </h2>
-        <div style={{ 
-          fontSize: '18px', 
-          fontWeight: 'bold', 
-          color: '#64ff8a',
-          backgroundColor: '#1e1e1e',
-          padding: '8px 15px',
-          borderRadius: '6px',
-          border: '1px solid #333'
-        }}>
+        <div className="text-lg font-bold text-success bg-secondary px-4 py-2 rounded-md border border-border shadow-sm">
           Total Bruto: R$ {totalVendasBruto.toFixed(2).replace(".", ",")}
         </div>
       </div>
 
       {vendasFiltradas.length === 0 ? (
-        <p style={{ textAlign: "center", padding: "20px", color: "#888", backgroundColor: '#2d2d2d', borderRadius: '8px' }}>
+        <p className="text-center p-5 text-muted-foreground bg-card rounded-lg border border-border">
           Nenhuma venda encontrada para o filtro aplicado.
         </p>
       ) : (
-        <TabelaVendas>
-          <thead>
-            <tr>
-              <th style={{ width: '100px' }}>ID / STATUS</th>
-              <th>Data/Hora</th>
-              <th>Atendente (CPF)</th>
-              <th>Detalhamento da Transação</th>
-              <th style={{ textAlign: 'center', width: '180px' }}>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {vendasFiltradas.map((venda) => (
-              <tr key={venda.id_venda}>
-                <td>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <small style={{ color: '#888' }}>#{venda.id_venda}</small>
-                    {venda.editada && (
-                      <span style={{ 
-                        fontSize: '9px', 
-                        background: '#ff9800', 
-                        color: '#000', 
-                        padding: '2px 4px', 
-                        borderRadius: '3px', 
-                        fontWeight: 'bold',
-                        textAlign: 'center',
-                        width: 'fit-content'
-                      }}>
-                        EDITADA
-                      </span>
-                    )}
-                  </div>
-                </td>
-                <td>
-                  {formatarDataHora(venda.data_venda || venda.data_cadastro || venda.data_hora)}
-                </td>
-                
-                <td style={{ fontWeight: '600', color: '#ff9800', fontSize: '13px' }}>
-                  {formatarIdentificacaoAtendente(venda.nome_atendente, venda.cpf_atendente || venda.cpf)}
-                </td>
-                
-                <td>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: '240px' }}>
-                    
-                    {/* LISTAGEM DE PRODUTOS VENDIDOS - BLINDAGEM TOTAL */}
-                    {venda.itens && venda.itens.length > 0 && (
-                      <div style={{ 
-                        background: 'rgba(0,0,0,0.2)', 
-                        padding: '8px', 
-                        borderRadius: '4px', 
-                        border: '1px solid #333' 
-                      }}>
-                        <span style={{ fontSize: '10px', color: '#666', fontWeight: 'bold', display: 'block', marginBottom: '4px', letterSpacing: '1px' }}>CONTEÚDO DA VENDA</span>
-                        {venda.itens.map((item, iIdx) => {
-                          // Se descricao_item for null ou undefined, usa o fallback. 
-                          // O toUpperCase() só é chamado se houver string.
-                          const nomeExibir = (item.descricao_item || "PRODUTO DESCONHECIDO").toString().toUpperCase();
-                          
-                          return (
-                            <div key={iIdx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', borderBottom: iIdx === venda.itens.length -1 ? 'none' : '1px solid #252525', padding: '2px 0' }}>
-                              <span style={{ color: '#cecece' }}>
-                                <strong style={{ color: '#64ff8a', marginRight: '5px' }}>{item.quantidade}x</strong> 
-                                {nomeExibir}
-                              </span>
-                              <span style={{ color: '#888' }}>R$ {parseFloat(item.subtotal || 0).toFixed(2).replace(".", ",")}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {/* Lista de Métodos com Referência */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      {venda.pagamentos && Array.isArray(venda.pagamentos) && venda.pagamentos.map((p, idx) => (
-                        <div key={idx} style={{ 
-                          display: 'flex', 
-                          flexDirection: 'column',
-                          background: 'rgba(255,255,255,0.03)',
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          borderLeft: '3px solid #444'
-                        }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
-                            <span style={{ color: '#aaa' }}>{p.metodo}:</span>
-                            <span style={{ color: '#fff', fontWeight: 'bold' }}>
-                              R$ {parseFloat(p.valor_pago || 0).toFixed(2).replace(".", ",")}
-                            </span>
-                          </div>
-                          {p.referencia_metodo && (
-                            <span style={{ fontSize: '10px', color: '#666', fontStyle: 'italic', marginTop: '2px' }}>
-                              Ref: {p.referencia_metodo}
-                            </span>
-                          )}
-                        </div>
-                      ))}
+        <div className="w-full overflow-x-auto bg-card rounded-xl border border-border shadow-sm">
+          <table className="w-full text-sm text-left text-foreground border-collapse">
+            <thead className="text-xs text-muted-foreground uppercase bg-secondary/50 border-b border-border">
+              <tr>
+                <th className="px-4 py-3 font-medium w-[100px]">ID / STATUS</th>
+                <th className="px-4 py-3 font-medium">Data/Hora</th>
+                <th className="px-4 py-3 font-medium">Atendente (CPF)</th>
+                <th className="px-4 py-3 font-medium min-w-[250px]">Detalhamento da Transação</th>
+                <th className="px-4 py-3 font-medium text-center w-[180px]">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {vendasFiltradas.map((venda, index) => (
+                <tr 
+                  key={venda.id_venda} 
+                  className={`border-b border-border transition-colors hover:bg-muted/50 ${index % 2 === 0 ? 'bg-background' : 'bg-card'}`}
+                >
+                  <td className="px-4 py-4 align-middle">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-muted-foreground text-xs font-mono">#{venda.id_venda}</span>
+                      {venda.editada && (
+                        <span className="text-[9px] bg-warning text-warning-foreground px-1.5 py-0.5 rounded font-bold text-center w-fit tracking-wider">
+                          EDITADA
+                        </span>
+                      )}
                     </div>
-
-                    {/* Resumo Consolidado */}
-                    <div style={{ 
-                      marginTop: '4px', 
-                      padding: '8px', 
-                      border: '1px solid #333', 
-                      borderRadius: '6px',
-                      background: 'rgba(100, 255, 138, 0.05)'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#888', marginBottom: '4px' }}>
-                        <span>Itens: <strong>{venda.quantidade_itens || 0}</strong></span>
-                        <span>Soma Bruta: R$ {parseFloat(venda.valor_pago_total || 0).toFixed(2).replace(".", ",")}</span>
-                      </div>
+                  </td>
+                  
+                  <td className="px-4 py-4 align-middle whitespace-nowrap text-muted-foreground">
+                    {formatarDataHora(venda.data_venda || venda.data_cadastro || venda.data_hora)}
+                  </td>
+                  
+                  <td className="px-4 py-4 align-middle font-semibold text-primary text-[13px]">
+                    {formatarIdentificacaoAtendente(venda.nome_atendente, venda.cpf_atendente || venda.cpf)}
+                  </td>
+                  
+                  <td className="px-4 py-4 align-middle">
+                    <div className="flex flex-col gap-2 min-w-[240px]">
                       
-                      {parseFloat(venda.valor_troco) > 0 && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ffb74d', fontSize: '11px', marginBottom: '4px' }}>
-                          <span>Troco Devolvido:</span>
-                          <span>- R$ {parseFloat(venda.valor_troco).toFixed(2).replace(".", ",")}</span>
+                      {/* CONTEÚDO DA VENDA */}
+                      {venda.itens && venda.itens.length > 0 && (
+                        <div className="bg-black/20 dark:bg-black/40 p-2 rounded border border-border">
+                          <span className="text-[10px] text-muted-foreground font-bold block mb-1 tracking-widest uppercase">CONTEÚDO DA VENDA</span>
+                          {venda.itens.map((item, iIdx) => {
+                            const nomeExibir = (item.descricao_item || "PRODUTO DESCONHECIDO").toString().toUpperCase();
+                            return (
+                              <div key={iIdx} className={`flex justify-between text-xs py-1 ${iIdx !== venda.itens.length - 1 ? 'border-b border-border/50' : ''}`}>
+                                <span className="text-foreground/80 wrap-break-word pr-2">
+                                  <strong className="text-success mr-1.5">{item.quantidade}x</strong> 
+                                  {nomeExibir}
+                                </span>
+                                <span className="text-muted-foreground whitespace-nowrap">R$ {parseFloat(item.subtotal || 0).toFixed(2).replace(".", ",")}</span>
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
 
-                      <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        color: '#64ff8a', 
-                        borderTop: '1px solid #444', 
-                        marginTop: '4px', 
-                        paddingTop: '6px',
-                        fontSize: '14px',
-                        fontWeight: 'bold'
-                      }}>
-                        <span>VALOR FINAL:</span>
-                        <span>R$ {parseFloat(venda.valor_total_bruto || 0).toFixed(2).replace(".", ",")}</span>
+                      {/* MÉTODOS DE PAGAMENTO */}
+                      <div className="flex flex-col gap-1">
+                        {venda.pagamentos && Array.isArray(venda.pagamentos) && venda.pagamentos.map((p, idx) => (
+                          <div key={idx} className="flex flex-col bg-accent/30 p-1.5 rounded border-l-2 border-primary">
+                            <div className="flex justify-between text-xs">
+                              <span className="text-muted-foreground">{p.metodo}:</span>
+                              <span className="text-foreground font-bold">
+                                R$ {parseFloat(p.valor_pago || 0).toFixed(2).replace(".", ",")}
+                              </span>
+                            </div>
+                            {p.referencia_metodo && (
+                              <span className="text-[10px] text-muted-foreground/70 italic mt-0.5">
+                                Ref: {p.referencia_metodo}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* RESUMO CONSOLIDADO */}
+                      <div className="mt-1 p-2 border border-success/20 rounded-md bg-success/5">
+                        <div className="flex justify-between text-[11px] text-muted-foreground mb-1">
+                          <span>Itens: <strong className="text-foreground/80">{venda.quantidade_itens || 0}</strong></span>
+                          <span>Soma Bruta: R$ {parseFloat(venda.valor_pago_total || 0).toFixed(2).replace(".", ",")}</span>
+                        </div>
+                        
+                        {parseFloat(venda.valor_troco) > 0 && (
+                          <div className="flex justify-between text-warning text-[11px] mb-1">
+                            <span>Troco Devolvido:</span>
+                            <span>- R$ {parseFloat(venda.valor_troco).toFixed(2).replace(".", ",")}</span>
+                          </div>
+                        )}
+
+                        <div className="flex justify-between text-success border-t border-success/20 mt-1 pt-1.5 text-sm font-bold">
+                          <span>VALOR FINAL:</span>
+                          <span>R$ {parseFloat(venda.valor_total_bruto || 0).toFixed(2).replace(".", ",")}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </td>
+                  </td>
 
-                <td>
-                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                    <button
-                      onClick={() => onEditarVenda(venda)}
-                      className="btn-editar"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => onDeletarVenda(venda.id_venda)}
-                      className="btn-deletar"
-                    >
-                      Excluir
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </TabelaVendas>
+                  <td className="px-4 py-4 align-middle">
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => onEditarVenda(venda)}
+                        className="bg-blue-500 text-white hover:bg-blue-600 px-3 py-1.5 rounded text-xs font-semibold transition-colors shadow-sm"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => onDeletarVenda(venda.id_venda)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90 px-3 py-1.5 rounded text-xs font-semibold transition-colors shadow-sm"
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
