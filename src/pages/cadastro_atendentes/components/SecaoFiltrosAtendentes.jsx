@@ -7,60 +7,43 @@ export const SecaoFiltrosAtendentes = ({
   setFiltroAtivo,
   onLimparFiltros
 }) => {
-  // Estilo padronizado para os inputs conforme sua paleta
-  const inputStyle = {
-    padding: '10px 12px',
-    backgroundColor: '#1e1e1e', // Ultra escuro
-    color: '#E0E0E0',
-    border: '1px solid #444',
-    borderRadius: '4px',
-    fontSize: '14px',
-    width: '100%',
-    outline: 'none',
-    marginTop: '5px'
-  };
-
-  const labelStyle = {
-    color: '#A0A0A0',
-    fontSize: '13px',
-    fontWeight: '300'
-  };
+  const isFiltroAtivo = filtroNome || filtroAtivo !== 'todos';
 
   return (
-    <div className="secao-filtros" style={{ backgroundColor: '#2d2d2d', padding: '20px', borderRadius: '8px' }}>
-      <div className="titulo-secao" style={{ color: '#FF9800', fontSize: '16px', fontWeight: '500', marginBottom: '5px' }}>
-        🔍 Filtros de Busca
-      </div>
-      <p style={{ color: '#888', margin: '0 0 20px 0', fontSize: '13px' }}>
+    <div className="flex flex-col gap-5 w-full">
+      <p className="text-muted-foreground text-sm m-0">
         Filtre os atendentes por nome e status para uma gestão mais rápida.
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '20px', alignItems: 'end' }}>
+      <div className="flex flex-col md:flex-row gap-5 items-end">
         {/* Filtro por Nome */}
-        <div className="input-group">
-          <label htmlFor="filtro-nome" style={labelStyle}>Buscar por nome</label>
+        <div className="flex flex-col w-full">
+          <label htmlFor="filtro-nome" className="text-muted-foreground text-sm font-light mb-1.5">
+            Buscar por nome
+          </label>
           <input
             id="filtro-nome"
             type="text"
             value={filtroNome}
             onChange={(e) => setFiltroNome(e.target.value)}
             placeholder="Digite o nome..."
-            style={inputStyle}
-            onFocus={(e) => e.target.style.borderColor = '#FF9800'}
-            onBlur={(e) => e.target.style.borderColor = '#444'}
+            className="w-full p-2.5 bg-background text-foreground border border-border rounded-md text-sm outline-none focus:border-primary transition-colors"
           />
         </div>
 
         {/* Filtro por Status */}
-        <div className="input-group">
-          <label htmlFor="filtro-status" style={labelStyle}>Status do Cadastro</label>
+        <div className="flex flex-col w-full md:w-64 shrink-0">
+          <label htmlFor="filtro-status" className="text-muted-foreground text-sm font-light mb-1.5">
+            Status do Cadastro
+          </label>
           <select
             id="filtro-status"
             value={filtroAtivo}
             onChange={(e) => setFiltroAtivo(e.target.value)}
-            style={inputStyle}
-            onFocus={(e) => e.target.style.borderColor = '#FF9800'}
-            onBlur={(e) => e.target.style.borderColor = '#444'}
+            className="w-full p-2.5 bg-background text-foreground border border-border rounded-md text-sm outline-none focus:border-primary transition-colors cursor-pointer appearance-none bg-no-repeat bg-position-[right_10px_center] bg-size-[8px_10px]"
+            style={{
+              backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3e%3cpath fill='%23E0E0E0' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e")`
+            }}
           >
             <option value="todos">Todos os status</option>
             <option value="ativos">Apenas ativos</option>
@@ -71,50 +54,30 @@ export const SecaoFiltrosAtendentes = ({
         {/* Botão Limpar Filtros */}
         <button
           onClick={onLimparFiltros}
-          disabled={!filtroNome && filtroAtivo === 'todos'}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#444',
-            color: '#E0E0E0',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            height: '40px',
-            fontSize: '13px',
-            transition: '0.2s',
-            opacity: (!filtroNome && filtroAtivo === 'todos') ? 0.5 : 1
-          }}
-          onMouseOver={(e) => !e.target.disabled && (e.target.style.backgroundColor = '#555')}
-          onMouseOut={(e) => !e.target.disabled && (e.target.style.backgroundColor = '#444')}
+          disabled={!isFiltroAtivo}
+          className="h-[42px] px-5 bg-muted text-foreground border-none rounded-md text-sm cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-muted-foreground/20 whitespace-nowrap shrink-0"
         >
           Limpar Filtros
         </button>
       </div>
 
       {/* Badge de Filtros Ativos */}
-      {(filtroNome || filtroAtivo !== 'todos') && (
-        <div style={{ 
-          marginTop: '20px',
-          padding: '12px',
-          backgroundColor: '#1e1e1e',
-          borderLeft: '4px solid #FF9800',
-          borderRadius: '4px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}>
-          <div style={{ fontSize: '13px' }}>
-            <span style={{ color: '#888' }}>Filtros ativos: </span>
-            {filtroNome && <span style={{ color: '#FF9800', marginLeft: '10px' }}>Nome: "{filtroNome}"</span>}
+      {isFiltroAtivo && (
+        <div className="flex justify-between items-center mt-2 p-3 bg-background border-l-4 border-warning rounded-md text-sm">
+          <div>
+            <span className="text-muted-foreground">Filtros ativos: </span>
+            {filtroNome && (
+              <span className="text-warning ml-2 font-medium">Nome: "{filtroNome}"</span>
+            )}
             {filtroAtivo !== 'todos' && (
-              <span style={{ color: '#64ff8a', marginLeft: '10px' }}>
+              <span className="text-success ml-2 font-medium">
                 Status: {filtroAtivo === 'ativos' ? 'Ativos' : 'Inativos'}
               </span>
             )}
           </div>
           <button
             onClick={onLimparFiltros}
-            style={{ background: 'none', border: 'none', color: '#E53935', cursor: 'pointer', fontSize: '11px', fontWeight: 'bold' }}
+            className="bg-transparent border-none text-destructive cursor-pointer text-xs font-bold hover:brightness-125 transition-all p-0 ml-4 shrink-0"
           >
             REMOVER TODOS
           </button>
