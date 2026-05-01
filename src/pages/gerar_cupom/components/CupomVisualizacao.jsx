@@ -1,6 +1,4 @@
-// components/GerarCupom/CupomVisualizacao.jsx
 import React from 'react';
-import { CupomVisualizacaoContainer } from "../GerarCupomStyled"; // Importação do styled-component
 
 const CupomVisualizacao = ({
   empresaSelecionada,
@@ -11,8 +9,8 @@ const CupomVisualizacao = ({
 }) => {
   if (!empresaSelecionada || !detalhesVenda) {
     return (
-      <div style={{ textAlign: "center", padding: "20px" }}>
-        Selecione uma <strong>Empresa</strong> e uma <strong>Venda</strong> para gerar o cupom.
+      <div className="text-center p-5 text-muted-foreground text-sm">
+        Selecione uma <strong className="text-foreground font-medium">Empresa</strong> e uma <strong className="text-foreground font-medium">Venda</strong> para gerar o cupom.
       </div>
     );
   }
@@ -21,95 +19,63 @@ const CupomVisualizacao = ({
   const venda = detalhesVenda;
 
   return (
-    <CupomVisualizacaoContainer>
-      <div
-        className="cupom-container"
-        style={{
-          border: "1px dashed #666",
-          padding: "20px",
-          backgroundColor: "#fff",
-          color: "#000",
-          width: "300px",
-          margin: "20px auto",
-          position: "relative",
-        }}
-      >
+    <div className="flex justify-center w-full mt-8">
+      {/* Container do "Papel" do Cupom */}
+      <div className="relative border border-dashed border-gray-500 p-6 bg-white text-black w-full max-w-xs shadow-lg font-mono">
+        
         {/* Botão de exportar PDF */}
         <button
           onClick={gerarPDFCupom}
           disabled={gerandoPDF}
-          style={{
-            position: "absolute",
-            top: "10px",
-            right: "10px",
-            padding: "5px 10px",
-            backgroundColor: "#2196F3",
-            color: "white",
-            border: "none",
-            borderRadius: "3px",
-            fontSize: "10px",
-            cursor: "pointer",
-            opacity: gerandoPDF ? 0.6 : 1
-          }}
+          className="absolute top-2.5 right-2.5 px-3 py-1.5 bg-blue-500 text-white font-sans font-medium border-none rounded text-xs cursor-pointer disabled:opacity-60 hover:bg-blue-600 transition-colors shadow-sm active:scale-95"
         >
           {gerandoPDF ? "Gerando..." : "📄 PDF"}
         </button>
 
-        <h3 style={{ textAlign: "center", marginBottom: "5px" }}>
+        {/* Cabeçalho da Empresa */}
+        <h3 className="text-center mb-1 mt-5 text-base font-bold leading-tight">
           {empresa.nome_fantasia || empresa.razao_social}
         </h3>
-        <p
-          style={{
-            fontSize: "10px",
-            textAlign: "center",
-            marginBottom: "15px",
-          }}
-        >
+        <p className="text-xs text-center mb-3 leading-relaxed text-gray-800">
           CNPJ: {empresa.cnpj} | IE: {empresa.inscricao_estadual}
         </p>
-        <p style={{ fontSize: "10px" }}>
+        <p className="text-xs text-center leading-relaxed text-gray-800">
           Endereço: {empresa.endereco}, {empresa.cidade}/{empresa.estado}
         </p>
-        <p style={{ fontSize: "10px", marginBottom: "15px" }}>
+        <p className="text-xs text-center mb-4 leading-relaxed text-gray-800">
           Telefone: {empresa.telefone}
         </p>
 
-        <div
-          className="cupom-detalhes"
-          style={{
-            borderTop: "1px solid #000",
-            borderBottom: "1px solid #000",
-            padding: "10px 0",
-            marginBottom: "15px",
-          }}
-        >
-          <p style={{ fontSize: "12px" }}>
+        {/* Detalhes da Venda */}
+        <div className="border-y border-black py-3 mb-4">
+          <p className="text-sm font-semibold mb-1">
             COMPROVANTE - VENDA ID: {venda.id_venda}
           </p>
-          <p style={{ fontSize: "12px" }}>
+          <p className="text-sm">
             Data: {new Date(venda.data_hora).toLocaleString("pt-BR")}
           </p>
         </div>
 
-        <table style={{ width: "100%", fontSize: "10px" }}>
+        {/* Tabela de Itens */}
+        <table className="w-full text-xs mb-4">
           <thead>
             <tr>
-              <th style={{ textAlign: "left" }}>Item</th>
-              <th style={{ textAlign: "right" }}>Qtd. x Preço</th>
-              <th style={{ textAlign: "right" }}>Total</th>
+              <th className="text-left pb-2 font-semibold w-1/2">Item</th>
+              <th className="text-center pb-2 font-semibold">Qtd. x Preço</th>
+              <th className="text-right pb-2 font-semibold">Total</th>
             </tr>
           </thead>
           <tbody>
             {venda.itens?.map((item, index) => (
-              <tr key={index}>
-                {/* CORREÇÃO APLICADA: Combina descricao_item e categoria para visualização completa */}
-                <td style={{ textAlign: "left" }}>
-                  {item.descricao_item || 'N/D'} ({item.categoria || "Item"})
-                </td> 
-                <td style={{ textAlign: "right" }}>
+              <tr key={index} className="align-top">
+                <td className="text-left py-1 pr-2 leading-tight">
+                  {item.descricao_item || 'N/D'} <br/> 
+                  <span className="text-[10px] text-gray-500 tracking-tighter">({item.categoria || "Item"})</span>
+                </td>
+                <td className="text-center py-1 whitespace-nowrap">
                   {item.quantidade} x {formatarMoeda(item.preco_unitario)}
                 </td>
-                <td style={{ textAlign: "right" }}>
+                <td className="text-right py-1 whitespace-nowrap">
                   {formatarMoeda(item.subtotal)}
                 </td>
               </tr>
@@ -117,49 +83,28 @@ const CupomVisualizacao = ({
           </tbody>
         </table>
 
-        <div
-          className="cupom-totais"
-          style={{
-            borderTop: "1px solid #000",
-            marginTop: "15px",
-            paddingTop: "10px",
-          }}
-        >
-          <p
-            style={{
-              fontWeight: "bold",
-              fontSize: "14px",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            TOTAL BRUTO:{" "}
+        {/* Área de Totais e Pagamento */}
+        <div className="border-t border-black pt-3">
+          <p className="font-bold text-base flex justify-between mb-2">
+            <span>TOTAL BRUTO:</span>
             <span>R$ {formatarMoeda(venda.valor_total_bruto)}</span>
           </p>
+          
           {venda.pagamentos?.map((pag, index) => (
-            <p
-              key={index}
-              style={{
-                fontSize: "12px",
-                display: "flex",
-                justifyContent: "space-between",
-              }}
-            >
-              {pag.metodo}: <span>R$ {formatarMoeda(pag.valor_pago)}</span>
+            <p key={index} className="text-sm flex justify-between mb-1 text-gray-800">
+              <span>{pag.metodo}:</span>
+              <span>R$ {formatarMoeda(pag.valor_pago)}</span>
             </p>
           ))}
-          <p
-            style={{
-              fontSize: "12px",
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
-            TROCO: <span>R$ {formatarMoeda(venda.valor_troco)}</span>
+          
+          <p className="text-sm flex justify-between font-bold mt-2 pt-2 border-t border-dashed border-gray-400">
+            <span>TROCO:</span>
+            <span>R$ {formatarMoeda(venda.valor_troco)}</span>
           </p>
         </div>
+
       </div>
-    </CupomVisualizacaoContainer>
+    </div>
   );
 };
 
