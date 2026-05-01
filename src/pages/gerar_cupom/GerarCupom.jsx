@@ -1,4 +1,4 @@
-import { GerarCupomStyled } from "./GerarCupomStyled"; 
+import React from 'react';
 import { useCupom } from "./hooks/useCupom";
 import ControlesSelecao from "./components/ControlesSelecao";
 import CupomVisualizacao from "./components/CupomVisualizacao";
@@ -20,29 +20,37 @@ export const GerarCupom = () => {
     gerarPDFCupom
   } = useCupom();
 
+  // --- ESTADO DE CARREGAMENTO ---
   if (carregando) {
     return (
-      <GerarCupomStyled>
-        <h1 style={{ color: "#BACBD9", textAlign: "center" }}>
+      <div className="flex flex-col items-center justify-center w-[98%] h-[calc(100vh-120px)] mt-24 mb-5 mx-auto bg-card rounded-xl shadow-2xl border border-border text-foreground">
+        <h1 className="text-muted-foreground animate-pulse text-2xl font-light">
           Carregando dados...
         </h1>
-      </GerarCupomStyled>
+      </div>
     );
   }
 
+  // --- ESTADO DE ERRO ---
   if (erro) {
     return (
-      <GerarCupomStyled>
-        <h1 style={{ color: "#E53935", textAlign: "center" }}>{erro}</h1>
-      </GerarCupomStyled>
+      <div className="flex flex-col items-center justify-center w-[98%] h-[calc(100vh-120px)] mt-24 mb-5 mx-auto bg-card rounded-xl shadow-2xl border border-border text-foreground">
+        <h1 className="text-destructive text-2xl font-light text-center px-4">
+          {erro}
+        </h1>
+      </div>
     );
   }
 
+  // --- RENDERIZAÇÃO PRINCIPAL ---
   return (
-    <GerarCupomStyled>
-      <h1 style={{ color: "#BACBD9", textAlign: "center", marginBottom: "20px" }}>
-        Geração de Comprovante
-      </h1>
+    <div className="flex flex-col items-center w-[98%] h-[calc(100vh-120px)] mt-24 mb-5 mx-auto p-6 md:p-8 bg-background rounded-xl shadow-2xl border border-border overflow-y-auto box-border text-foreground [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50">
+      
+      <div className="w-full text-center mb-8 pb-4 border-b border-border">
+        <h1 className="text-3xl font-light text-foreground m-0">
+          Geração de Comprovante
+        </h1>
+      </div>
 
       <ControlesSelecao
         empresas={empresas}
@@ -60,6 +68,7 @@ export const GerarCupom = () => {
         gerarPDFCupom={gerarPDFCupom}
         gerandoPDF={gerandoPDF}
       />
-    </GerarCupomStyled>
+      
+    </div>
   );
 };
