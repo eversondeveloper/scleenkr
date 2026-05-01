@@ -1,11 +1,4 @@
-// components/ProdutosModal.jsx
 import React from 'react';
-import { 
-    FormularioEdicao,
-    GrupoFormulario,
-    ContainerBotoesForm,
-    BotaoAcao 
-} from '../ProdutosStyled'; 
 
 export const ProdutosModal = ({
     produtoEditando,
@@ -27,69 +20,34 @@ export const ProdutosModal = ({
 
     return (
         <div 
-            style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.85)',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                zIndex: 1000,
-                padding: '20px'
-            }} 
+            className="fixed inset-0 z-50 flex justify-center items-center bg-black/80 backdrop-blur-sm p-5 animate-in fade-in duration-200"
             onClick={resetarFormulario}
         >
             <div 
-                style={{
-                    backgroundColor: '#2d2d2d',
-                    padding: '30px',
-                    borderRadius: '12px',
-                    width: '100%',
-                    maxWidth: '650px',
-                    maxHeight: '95vh',
-                    overflowY: 'auto',
-                    position: 'relative',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
-                    border: '1px solid #444'
-                }} 
+                className="bg-card p-8 rounded-xl w-full max-w-[650px] max-h-[95vh] overflow-y-auto relative shadow-2xl border border-border"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    marginBottom: '25px',
-                    borderBottom: '1px solid #444',
-                    paddingBottom: '15px'
-                }}>
-                    <h2 style={{ margin: 0, color: '#E0E0E0', fontSize: '22px', fontWeight: '400' }}>
+                {/* Header do Modal */}
+                <div className="flex justify-between items-center mb-6 pb-4 border-b border-border">
+                    <h2 className="m-0 text-foreground text-2xl font-normal">
                         {tituloModal}
                     </h2>
                     <button 
                         type="button" 
                         onClick={resetarFormulario}
-                        style={{
-                            background: 'transparent',
-                            border: 'none',
-                            fontSize: '28px',
-                            cursor: 'pointer',
-                            color: '#A0A0A0',
-                            lineHeight: '1'
-                        }}
+                        className="bg-transparent border-none text-3xl cursor-pointer text-muted-foreground leading-none hover:text-foreground transition-colors"
                     >
                         ×
                     </button>
                 </div>
 
-                <FormularioEdicao onSubmit={salvarProduto} style={{ margin: 0, padding: 0, border: 'none', backgroundColor: 'transparent' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                {/* Corpo do Formulário */}
+                <form onSubmit={salvarProduto} className="m-0 p-0">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         
                         {/* Descrição */}
-                        <GrupoFormulario style={{ gridColumn: 'span 2' }}>
-                            <label htmlFor="descricao">Descrição (Nome):</label>
+                        <div className="flex flex-col md:col-span-2">
+                            <label htmlFor="descricao" className="mb-2 font-medium text-foreground text-sm">Descrição (Nome):</label>
                             <input
                                 id="descricao"
                                 name="descricao"
@@ -99,12 +57,13 @@ export const ProdutosModal = ({
                                 required
                                 autoFocus
                                 placeholder="Ex: Letreiro em Acrílico"
+                                className="p-2.5 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
                             />
-                        </GrupoFormulario>
+                        </div>
                         
                         {/* Categoria */}
-                        <GrupoFormulario style={{ gridColumn: 'span 2' }}>
-                            <label htmlFor="categoria">Categoria:</label>
+                        <div className="flex flex-col md:col-span-2">
+                            <label htmlFor="categoria" className="mb-2 font-medium text-foreground text-sm">Categoria:</label>
                             <input
                                 id="categoria"
                                 name="categoria"
@@ -113,12 +72,13 @@ export const ProdutosModal = ({
                                 onChange={manipularMudanca}
                                 required
                                 placeholder="Ex: Comunicação Visual"
+                                className="p-2.5 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
                             />
-                        </GrupoFormulario>
+                        </div>
                         
                         {/* Preço */}
-                        <GrupoFormulario>
-                            <label htmlFor="preco">Preço de Venda (R$):</label>
+                        <div className="flex flex-col">
+                            <label htmlFor="preco" className="mb-2 font-medium text-foreground text-sm">Preço de Venda (R$):</label>
                             <input
                                 id="preco"
                                 name="preco"
@@ -128,29 +88,31 @@ export const ProdutosModal = ({
                                 value={dadosFormulario.preco !== undefined ? dadosFormulario.preco : 0} 
                                 onChange={manipularMudanca}
                                 required
+                                className="p-2.5 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
                             />
-                        </GrupoFormulario>
+                        </div>
 
                         {/* Tipo */}
-                        <GrupoFormulario>
-                            <label htmlFor="tipoItem">Tipo de Item:</label>
+                        <div className="flex flex-col">
+                            <label htmlFor="tipoItem" className="mb-2 font-medium text-foreground text-sm">Tipo de Item:</label>
                             <select
                                 id="tipoItem"
                                 name="tipoItem"
                                 value={dadosFormulario.tipoItem || 'Serviço'}
                                 onChange={manipularMudanca}
                                 required
+                                className="p-2.5 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
                             >
                                 <option value="Serviço">Serviço</option>
                                 <option value="Produto">Produto</option>
                             </select>
-                        </GrupoFormulario>
+                        </div>
                         
                         {/* Campos específicos de PRODUTO */}
                         {dadosFormulario.tipoItem === 'Produto' && (
                             <>
-                                <GrupoFormulario>
-                                    <label htmlFor="estoqueAtual">Estoque Atual:</label>
+                                <div className="flex flex-col">
+                                    <label htmlFor="estoqueAtual" className="mb-2 font-medium text-foreground text-sm">Estoque Atual:</label>
                                     <input
                                         id="estoqueAtual"
                                         name="estoqueAtual"
@@ -158,11 +120,12 @@ export const ProdutosModal = ({
                                         min="0"
                                         value={dadosFormulario.estoqueAtual !== undefined ? dadosFormulario.estoqueAtual : 0}
                                         onChange={manipularMudanca}
+                                        className="p-2.5 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
                                     />
-                                </GrupoFormulario>
+                                </div>
 
-                                <GrupoFormulario>
-                                    <label htmlFor="custoUnitario">Custo Unitário (R$):</label>
+                                <div className="flex flex-col">
+                                    <label htmlFor="custoUnitario" className="mb-2 font-medium text-foreground text-sm">Custo Unitário (R$):</label>
                                     <input
                                         id="custoUnitario"
                                         name="custoUnitario"
@@ -171,11 +134,12 @@ export const ProdutosModal = ({
                                         min="0"
                                         value={dadosFormulario.custoUnitario !== undefined ? dadosFormulario.custoUnitario : 0}
                                         onChange={manipularMudanca}
+                                        className="p-2.5 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
                                     />
-                                </GrupoFormulario>
+                                </div>
 
-                                <GrupoFormulario style={{ gridColumn: 'span 2' }}>
-                                    <label htmlFor="codigoBarra">Código de Barras:</label>
+                                <div className="flex flex-col md:col-span-2">
+                                    <label htmlFor="codigoBarra" className="mb-2 font-medium text-foreground text-sm">Código de Barras:</label>
                                     <input
                                         id="codigoBarra"
                                         name="codigoBarra"
@@ -183,25 +147,31 @@ export const ProdutosModal = ({
                                         value={dadosFormulario.codigoBarra || ''}
                                         onChange={manipularMudanca}
                                         placeholder="Código de barras opcional"
+                                        className="p-2.5 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:border-primary transition-colors"
                                     />
-                                </GrupoFormulario>
+                                </div>
                             </>
                         )}
                     </div>
 
-                    <ContainerBotoesForm style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #444' }}>
-                        <BotaoAcao onClick={resetarFormulario} type="button" $tipo="cancelar">
+                    {/* Rodapé e Botões de Ação */}
+                    <div className="flex justify-end gap-4 mt-8 pt-5 border-t border-border">
+                        <button 
+                            type="button" 
+                            onClick={resetarFormulario} 
+                            className="px-4 py-2 bg-muted text-foreground rounded-md text-sm font-medium border-none cursor-pointer hover:bg-muted-foreground/20 transition-colors"
+                        >
                             CANCELAR
-                        </BotaoAcao>
-                        <BotaoAcao 
+                        </button>
+                        <button 
                             type="submit" 
-                            $tipo="salvar" 
                             disabled={!podeSalvar} 
+                            className="px-4 py-2 bg-success text-black rounded-md text-sm font-bold border-none cursor-pointer hover:brightness-110 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {textoBotaoSalvar}
-                        </BotaoAcao>
-                    </ContainerBotoesForm>
-                </FormularioEdicao>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );
