@@ -13,14 +13,12 @@
   /* Superfícies de Destaque */
   --card: #ffffff;            /* Fundo de painéis fixos (Header, Footer, Cards) */
   --card-foreground: #111827; /* Texto dentro dos cards */
-
   --popover: #ffffff;         /* Fundo de elementos flutuantes (Menus dropdown, Modais) */
   --popover-foreground: #111827; /* Texto dentro dos elementos flutuantes */
 
   /* Cores de Ação (Botões e Destaques) */
   --primary: #FF9800;         /* Cor da marca Scleenkr (Laranja) */
   --primary-foreground: #ffffff; /* Texto sobre a cor primária (Ex: texto branco no botão laranja) */
-
   --secondary: #e5e7eb;       /* Fundo de botões secundários ou áreas de suporte */
   --secondary-foreground: #111827; /* Texto sobre áreas secundárias */
 
@@ -43,8 +41,14 @@
   --border: #e5e7eb;          /* Cor de divisórias e bordas de botões/cards */
   --input: #e5e7eb;           /* Borda padrão de campos de texto (inputs) */
   --ring: #FF9800;            /* Cor da borda de "foco" quando o usuário clica num input */
-
   --radius: 0.5rem;           /* Curvatura padrão das bordas arredondadas */
+
+  /* Cores de Alerta e Informação */
+  --warning: #f59e0b;         /* Amarelo/Laranja para alertas e valores parciais */
+  --warning-foreground: #ffffff;
+  
+  --info: #3b82f6;            /* Azul para botões de edição, links e PDFs */
+  --info-foreground: #ffffff;
 }
 
 .dark {
@@ -81,6 +85,13 @@
   --border: #333333;
   --input: #333333;
   --ring: #FF9800;
+
+  /* Cores de Alerta e Informação */
+  --warning: #f59e0b;
+  --warning-foreground: #121212;
+
+  --info: #2196F3;
+  --info-foreground: #ffffff;
 }
 
 @theme inline {
@@ -120,6 +131,12 @@
   --radius-md: calc(var(--radius) - 1px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 2px);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
 }
 
 html, body, #root {
