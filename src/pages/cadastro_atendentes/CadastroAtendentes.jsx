@@ -142,8 +142,7 @@ export const CadastroAtendentes = ({ onResetEstado, onAtualizarEmpresa }) => {
 
   // --- RENDERIZAÇÃO PRINCIPAL ---
   return (
-    <div className="flex flex-col gap-8 w-[98%] h-[calc(100vh-120px)] mt-24 mb-5 mx-auto p-6 md:p-8 bg-background rounded-xl shadow-2xl border border-border overflow-y-auto box-border text-foreground [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50">
-      
+    <div className="flex flex-col w-full h-full gap-5">
       <div className="flex flex-col gap-1.5 items-center justify-center pb-6 border-b border-border shrink-0">
         <h1 className="text-3xl font-light text-foreground m-0">Gestão de Operadores e Caixa</h1>
       </div>

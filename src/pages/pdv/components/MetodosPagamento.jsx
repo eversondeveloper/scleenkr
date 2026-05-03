@@ -117,10 +117,11 @@ const MetodosPagamento = ({
       <div className="flex-1 bg-[#121212] border border-[#222] rounded-2xl p-[15px] flex flex-col overflow-y-auto overflow-x-hidden">
         
         {metodoPagamento === "Dinheiro" && (
-          <div className="flex flex-wrap gap-5 justify-center items-start w-full">
+          // CORREÇÃO: Removido flex-wrap, forçado flex-col e itens centralizados/esticados
+          <div className="flex flex-col gap-5 justify-start items-center w-full h-full p-4">
             
             {/* Coluna Input Principal */}
-            <div className="flex-1 min-w-[250px] max-w-[450px] flex flex-col gap-3">
+            <div className="w-full flex flex-col gap-3">
               <label className="text-[10px] text-[#4caf50] font-extrabold uppercase mb-1 tracking-wider">VALOR RECEBIDO</label>
               
               <div className="flex items-center bg-[#0a0a0a] rounded-[20px] border border-[#222] p-0.5 h-[50px]">
@@ -174,14 +175,14 @@ const MetodosPagamento = ({
             </div>
 
             {/* Coluna Cédulas Rápidas */}
-            <div className="flex-1 min-w-[220px] max-w-[300px] bg-[#181818] p-3 rounded-[14px] border border-[#282828] flex flex-col gap-2.5">
+            <div className="w-full bg-[#181818] p-3 rounded-[14px] border border-[#282828] flex flex-col gap-2.5">
               <label className="text-[10px] text-[#4caf50] font-extrabold uppercase mb-1 tracking-wider">ADICIONAR VALORES</label>
               <div className="grid grid-cols-[repeat(auto-fill,minmax(65px,1fr))] gap-1.5">
                 {valoresBrasileiros.map(v => (
                   <button 
                     key={v} 
                     type="button" 
-                    className="h-[38px] bg-[#1a1a1a] border border-[#252525] rounded-lg text-[#888] font-extrabold text-[10px] cursor-pointer transition-all hover:bg-[#333] hover:border-[#4caf50] hover:text-[#64ff8a]" 
+                    className="h-[38px] bg-[#1a1a1a] border border-[#252525] rounded-lg text-[#888] font-extrabold text-sm cursor-pointer transition-all hover:bg-[#333] hover:border-[#4caf50] hover:text-[#64ff8a]" 
                     onClick={() => { setValorDinheiroRecebido(valorDinheiroRecebido + v); somClick(); }}
                   >
                     +{v < 1 ? v.toFixed(2).replace('.', ',') : v}
@@ -200,8 +201,8 @@ const MetodosPagamento = ({
         )}
 
         {metodoPagamento === "Misto" && (
-          <div className="flex flex-wrap gap-5 justify-center items-start w-full">
-            <div className="flex-1 min-w-[250px] max-w-[450px] flex flex-col gap-3">
+          <div className="flex flex-col gap-5 justify-start items-center w-full h-full">
+            <div className="w-full flex flex-col gap-3">
               
               <div className="flex justify-between items-center mb-2.5">
                 <h4 className="text-[#888] text-[11px] m-0 font-extrabold tracking-widest">PAGAMENTOS MÚLTIPLOS</h4>
@@ -258,11 +259,11 @@ const MetodosPagamento = ({
 
         {/* Aguardando Terminal */}
         {["Crédito", "Débito", "Pix"].includes(metodoPagamento) && (
-          <div className="text-center m-auto flex flex-col items-center justify-center h-full">
+          <div className="text-center m-auto flex flex-col items-center justify-center h-full w-full">
              <p className="text-[#888] text-[13px]">Aguardando terminal de {metodoPagamento}...</p>
              <h2 className="text-[32px] font-extrabold text-white">R$ {formatarParaReal(totalGeral)}</h2>
              <div className="bg-[#1b5e20] text-[#64ff8a] p-2.5 rounded-lg inline-block mt-5 font-bold tracking-wider shadow-lg">
-               ✅ PAGO INTEGRALMENTE
+                ✅ PAGO INTEGRALMENTE
              </div>
           </div>
         )}

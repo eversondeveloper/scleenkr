@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { api } from '../../../api/client';
+import { apiClient } from '../../../api/apiClient';
 import clickSound from '/sounds/selecionar.mp3';
 
 export const useCupom = () => {
@@ -27,8 +27,8 @@ export const useCupom = () => {
     setCarregando(true);
     try {
       const [dadosVendas, dadosEmpresas] = await Promise.all([
-        api.get('/vendas'),
-        api.get('/empresas'),
+        apiClient.get('/vendas'),
+        apiClient.get('/empresas'),
       ]);
       setVendas(dadosVendas);
       setEmpresas(dadosEmpresas);
@@ -47,7 +47,7 @@ export const useCupom = () => {
   const buscarDetalhesVenda = useCallback(async (idVenda) => {
     setDetalhesVenda(null);
     try {
-      const dados = await api.get(`/vendas/${idVenda}`);
+      const dados = await apiClient.get(`/vendas/${idVenda}`);
       setDetalhesVenda(dados);
     } catch (error) {
       console.error('Erro ao buscar detalhes:', error);

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { api } from '../../../api/client';
+import { apiClient } from '../../../api/apiClient';
 
 export const useObservacoes = () => {
   const [observacoes, setObservacoes] = useState([]);
@@ -9,7 +9,7 @@ export const useObservacoes = () => {
     if (!dataBusca) return;
     setCarregandoObs(true);
     try {
-      const dados = await api.get(`/observacoes-diarias?data=${dataBusca}`);
+      const dados = await apiClient.get(`/observacoes-diarias?data=${dataBusca}`);
       if (dados && !Array.isArray(dados)) {
         setObservacoes([dados]);
       } else {
@@ -26,7 +26,7 @@ export const useObservacoes = () => {
     if (!data || !texto.trim()) { alert('⚠️ Digite um texto para a observação.'); return false; }
     setCarregandoObs(true);
     try {
-      await api.post('/observacoes-diarias', { data, texto, id_empresa: idEmpresa });
+      await apiClient.post('/observacoes-diarias', { data, texto, id_empresa: idEmpresa });
       alert('✅ Observação salva com sucesso!');
       await buscarObservacoesNoPeriodo(data);
       return true;
@@ -42,7 +42,7 @@ export const useObservacoes = () => {
     if (!data) return false;
     if (!window.confirm('Deseja realmente excluir esta observação?')) return false;
     try {
-      await api.delete(`/observacoes-diarias?data=${data}`);
+      await apiClient.delete(`/observacoes-diarias?data=${data}`);
       alert('✅ Observação removida.');
       setObservacoes([]);
       return true;

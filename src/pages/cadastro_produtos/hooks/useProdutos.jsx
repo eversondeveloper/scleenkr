@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { api } from '../../../api/client';
+import { apiClient } from '../../../api/apiClient';
 
 export const useProdutos = () => {
   const [produtos, setProdutos] = useState([]);
@@ -25,7 +25,7 @@ export const useProdutos = () => {
     setCarregando(true);
     setErro(null);
     try {
-      const dados = await api.get('/produtos');
+      const dados = await apiClient.get('/produtos');
       setProdutos(dados);
     } catch {
       setErro('Erro ao carregar produtos. API fora do ar ou URL incorreta.');
@@ -39,7 +39,7 @@ export const useProdutos = () => {
     const metodo = produtoEditando ? 'patch' : 'post';
     const path = produtoEditando ? `/produtos/${produtoEditando.id_produto}` : '/produtos';
     try {
-      await api[metodo](path, {
+      await apiClient[metodo](path, {
         ...dadosFormulario,
         estoqueAtual: parseFloat(dadosFormulario.estoqueAtual) || 0,
         custoUnitario: parseFloat(dadosFormulario.custoUnitario) || 0,
@@ -55,7 +55,7 @@ export const useProdutos = () => {
   const desativarProduto = useCallback(async (idProduto) => {
     if (!window.confirm('Tem certeza que deseja desativar este produto?')) return;
     try {
-      await api.delete(`/produtos/${idProduto}`);
+      await apiClient.delete(`/produtos/${idProduto}`);
       alert('Produto desativado com sucesso.');
       buscarProdutos();
     } catch (error) {

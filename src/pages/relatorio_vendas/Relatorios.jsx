@@ -258,7 +258,7 @@ export const Relatorios = () => {
   }
 
   return (
-    <div className="flex flex-col w-[98%] h-[calc(100vh-60px)] mt-10 md:mt-24 mx-auto p-6 bg-background rounded-xl shadow-2xl border border-border overflow-y-auto box-border [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50">
+    <div className="flex flex-col w-full h-full gap-5">
       
       <div className="w-full text-center mb-8 pb-4 border-b border-border">
         <h1 className="text-3xl font-light text-foreground mb-2 m-0">Relatório Financeiro</h1>

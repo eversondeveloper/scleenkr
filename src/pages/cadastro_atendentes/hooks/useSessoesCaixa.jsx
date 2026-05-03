@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { api } from '../../../api/client';
+import { apiClient } from '../../../api/apiClient';
 
 export const useSessoesCaixa = () => {
   const [sessoes, setSessoes] = useState([]);
@@ -9,7 +9,7 @@ export const useSessoesCaixa = () => {
 
   const buscarSessaoAtual = useCallback(async () => {
     try {
-      const sessao = await api.get('/sessoes-caixa/atual');
+      const sessao = await apiClient.get('/sessoes-caixa/atual');
       setSessaoAtual(sessao || null);
       return sessao;
     } catch {
@@ -21,7 +21,7 @@ export const useSessoesCaixa = () => {
   const buscarSessoes = useCallback(async () => {
     try {
       setCarregando(true);
-      const dados = await api.get('/sessoes-caixa');
+      const dados = await apiClient.get('/sessoes-caixa');
       setSessoes(Array.isArray(dados) ? dados : []);
     } catch (error) {
       console.error('Erro buscarSessoes:', error);
@@ -36,7 +36,7 @@ export const useSessoesCaixa = () => {
     if (!idEmpresaFinal) return { sucesso: false, erro: 'ID da empresa não detectado no envio.' };
     try {
       setErro('');
-      const resultado = await api.post('/sessoes-caixa', {
+      const resultado = await apiClient.post('/sessoes-caixa', {
         id_atendente: dadosSessao.id_atendente,
         valor_inicial: parseFloat(dadosSessao.valor_inicial) || 0,
         id_empresa: idEmpresaFinal,
@@ -54,7 +54,7 @@ export const useSessoesCaixa = () => {
   const fecharSessaoCaixa = async (idSessao, dadosFechamento = {}) => {
     try {
       setErro('');
-      await api.put(`/sessoes-caixa/${idSessao}/fechar`, {
+      await apiClient.put(`/sessoes-caixa/${idSessao}/fechar`, {
         valor_final: parseFloat(dadosFechamento.valor_final) || 0,
       });
       setSessaoAtual(null);

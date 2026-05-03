@@ -32,7 +32,7 @@ export const Produtos = () => {
     } = useArrastaSolta(produtos, setProdutos);
 
     return (
-        <div className="flex flex-col w-[98%] h-[calc(100vh-120px)] mt-24 mb-5 mx-auto p-6 md:p-8 bg-background rounded-xl shadow-2xl border border-border overflow-y-auto box-border text-foreground [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50">
+        <div className="flex flex-col w-full h-full gap-5">
             
             <h1 className="text-3xl font-light text-center mb-8 text-foreground m-0">
                 Gestão de Produtos e Serviços

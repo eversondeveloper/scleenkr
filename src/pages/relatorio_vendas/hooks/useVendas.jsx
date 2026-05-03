@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { api } from '../../../api/client';
+import { apiClient } from '../../../api/apiClient';
 
 export const useVendas = () => {
   const [vendas, setVendas] = useState([]);
@@ -14,7 +14,7 @@ export const useVendas = () => {
       if (inicio) params.append('inicio', inicio);
       if (fim) params.append('fim', fim);
       const query = params.toString() ? `?${params.toString()}` : '';
-      const dados = await api.get(`/vendas${query}`);
+      const dados = await apiClient.get(`/vendas${query}`);
       setVendas(Array.isArray(dados) ? dados : []);
     } catch (error) {
       console.error('Erro ao carregar vendas:', error);
@@ -26,7 +26,7 @@ export const useVendas = () => {
 
   const deletarVenda = useCallback(async (id) => {
     try {
-      await api.delete(`/vendas/${id}`);
+      await apiClient.delete(`/vendas/${id}`);
       await buscarVendas();
       return true;
     } catch (error) {
@@ -48,7 +48,7 @@ export const useVendas = () => {
 
   const limparHistoricoTotal = useCallback(async () => {
     try {
-      await api.delete('/limpar-dados/total');
+      await apiClient.delete('/limpar-dados/total');
       setVendas([]);
       return true;
     } catch (error) {
@@ -68,7 +68,7 @@ export const useVendas = () => {
       }));
       const novoValorPagoTotal = pagamentosParaEnviar.reduce((acc, p) => acc + p.valor_pago, 0);
       const valorBruto = parseFloat(vendaAtual.valor_total_bruto || 0);
-      await api.patch(`/vendas/${idVenda}/pagamentos`, {
+      await apiClient.patch(`/vendas/${idVenda}/pagamentos`, {
         pagamentos: pagamentosParaEnviar,
         valor_pago_total: novoValorPagoTotal,
         valor_troco: Math.max(0, novoValorPagoTotal - valorBruto),
@@ -83,7 +83,7 @@ export const useVendas = () => {
 
   const atualizarVenda = useCallback(async (idVenda, dadosVenda) => {
     try {
-      await api.patch(`/vendas/${idVenda}`, dadosVenda);
+      await apiClient.patch(`/vendas/${idVenda}`, dadosVenda);
       await buscarVendas();
       return true;
     } catch (error) {

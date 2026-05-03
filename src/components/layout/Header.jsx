@@ -1,5 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import LogoScleenkr from "../../assets/icons/LogoScleenkr.jsx";
+import { authService } from "../../lib/modules/auth/service"; // Importando o nosso serviço
 
 export function Header({ 
   empresaSelecionada, 
@@ -8,20 +9,31 @@ export function Header({
   toggleMenu, 
   fecharMenu 
 }) {
+  const navigate = useNavigate();
+
+  // Função que executa o fluxo de logout
+  const handleLogout = async () => {
+    if (window.confirm("Deseja realmente sair do sistema?")) {
+      await authService.logout(); // Limpa o token
+      navigate("/scleenkr/login", { replace: true }); // Manda pro login e impede de voltar na setinha do navegador
+    }
+  };
+
   return (
-    <header className="w-full h-[6%] flex items-center justify-center bg-card border-b border-border z-50">
+    <header className="w-full h-[6%] min-h-[50px] flex items-center justify-center bg-card border-b border-border z-50">
       <div className="w-[98%] flex items-center justify-between">
         
+        {/* LOGO */}
         <div className="h-[80%] w-[130px] flex items-center">
           <Link to="/scleenkr/" className="text-[18px] font-bold text-primary no-underline" onClick={fecharMenu}>
             <LogoScleenkr width="auto" color="#f3931a" />
           </Link>
         </div>
 
+        {/* INFORMAÇÕES DO OPERADOR E EMPRESA */}
         {empresaSelecionada && (
           <div className="flex items-center gap-2.5">
-            {/* Mantive o fundo #252525 exclusivo desta badge para não perder o contraste original */}
-            <div className="text-text-muted-foreground text-[13px] px-3 py-1 bg-muted rounded border border-border uppercase tracking-[0.5px]">
+            <div className="text-muted-foreground text-[13px] px-3 py-1 bg-muted rounded border border-border uppercase tracking-[0.5px]">
               {empresaSelecionada.nome_fantasia || empresaSelecionada.razao_social}
             </div>
 
@@ -36,10 +48,12 @@ export function Header({
           </div>
         )}
 
-        {/* MENU FLUTUANTE */}
-        <nav className="relative flex items-center h-full">
+        {/* NAVEGAÇÃO E LOGOUT */}
+        <nav className="relative flex items-center h-full gap-4">
+    
+          {/* MENU HAMBÚRGUER */}
           <button
-            className={`text-[24px] bg-transparent border-none cursor-pointer px-2.5 transition-colors duration-300 hover:text-primary ${menuAberto ? "text-primary" : "text-text-muted-foreground"}`}
+            className={`text-[24px] bg-transparent border-none cursor-pointer px-2.5 transition-colors duration-300 hover:text-primary ${menuAberto ? "text-primary" : "text-muted-foreground"}`}
             onClick={toggleMenu}
             aria-expanded={menuAberto}
             type="button"
@@ -48,7 +62,7 @@ export function Header({
           </button>
 
           <ul 
-            className={`absolute top-[90%] right-0 mt-2 bg-card border border-surface-hover rounded-[8px] shadow-[0_4px_15px_rgba(0,0,0,0.5)] 
+            className={`absolute top-[90%] right-0 mt-2 bg-card border border-border rounded-[8px] shadow-[0_4px_15px_rgba(0,0,0,0.5)] 
             p-[10px] min-w-[200px] flex flex-col gap-[5px] z-50 transition-all duration-200 origin-top-right
             ${menuAberto ? "opacity-100 scale-100 visible" : "opacity-0 scale-95 invisible"}`}
           >
@@ -62,7 +76,7 @@ export function Header({
               <li key={index} className="w-full">
                 <Link
                   to={link.path}
-                  className="block w-full text-left bg-secondary text-text-muted-foreground border border-surface-hover rounded-[6px] 
+                  className="block w-full text-left bg-secondary text-muted-foreground border border-border rounded-[6px] 
                   px-[15px] py-[10px] text-[14px] font-normal leading-normal transition-all duration-200 cursor-pointer 
                   hover:bg-accent hover:text-primary hover:border-primary active:translate-y-px"
                   onClick={fecharMenu}
@@ -72,6 +86,29 @@ export function Header({
               </li>
             ))}
           </ul>
+
+          {/* BOTÃO DE LOGOUT COM ÍCONE */}
+          <button
+            onClick={handleLogout}
+            title="Sair do Sistema"
+            className="flex items-center justify-center bg-transparent border-none cursor-pointer text-muted-foreground transition-all duration-300 hover:text-destructive hover:scale-110"
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              width="20" 
+              height="20" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
         </nav>
 
       </div>

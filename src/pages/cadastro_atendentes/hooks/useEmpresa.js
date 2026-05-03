@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { api } from '../../../api/client';
+import { apiClient } from '../../../api/apiClient';
 
 export const useEmpresa = () => {
   const [empresa, setEmpresa] = useState(null);
@@ -10,7 +10,7 @@ export const useEmpresa = () => {
     setCarregandoEmpresa(true);
     setErroEmpresa(null);
     try {
-      const dados = await api.get('/empresas');
+      const dados = await apiClient.get('/empresas');
       if (Array.isArray(dados) && dados.length > 0) {
         const emp = dados[0];
         setEmpresa({ ...emp, id_empresa: emp.id_empresa || emp.id });
@@ -28,7 +28,7 @@ export const useEmpresa = () => {
 
   const cadastrarEmpresa = async (dados) => {
     try {
-      await api.post('/empresas', dados);
+      await apiClient.post('/empresas', dados);
       await buscarEmpresa();
       return { sucesso: true };
     } catch (error) {
@@ -38,7 +38,7 @@ export const useEmpresa = () => {
 
   const atualizarEmpresa = async (id, dados) => {
     try {
-      await api.patch(`/empresas/${id}`, dados);
+      await apiClient.patch(`/empresas/${id}`, dados);
       await buscarEmpresa();
       return { sucesso: true };
     } catch (error) {
@@ -58,7 +58,7 @@ export const useEmpresa = () => {
     );
     if (!confirmacao) return { sucesso: false };
     try {
-      await api.delete(`/empresas/${id}`);
+      await apiClient.delete(`/empresas/${id}`);
       setEmpresa(null);
       await buscarEmpresa();
       alert('Sistema resetado com sucesso. Todos os dados foram apagados.');

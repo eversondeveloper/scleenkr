@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { api } from '../../../api/client';
+import { apiClient } from '../../../api/apiClient';
 import somCancelar from '/sounds/efeitos/cancelar1.mp3';
 import somFinalizar from '/sounds/efeitos/printer16.mp3';
 
@@ -64,7 +64,7 @@ export const useVendas = (sessaoAtual) => {
   const buscarProdutos = useCallback(async () => {
     try {
       setCarregandoProdutos(true);
-      const dados = await api.get('/produtos');
+      const dados = await apiClient.get('/produtos');
       setProdutosDB(Array.isArray(dados) ? dados : []);
     } catch {
       setMensagemFlutuante('❌ Erro ao carregar catálogo.');
@@ -150,7 +150,7 @@ export const useVendas = (sessaoAtual) => {
     };
     try {
       console.log(venda)
-      await api.post('/vendas', venda);
+      await apiClient.post('/vendas', venda);
       somFinalizarVenda();
       setMensagemFlutuante('✅ Venda registrada!');
       if (limparFiltrosCallback) limparFiltrosCallback();

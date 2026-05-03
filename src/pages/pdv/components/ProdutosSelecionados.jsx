@@ -89,7 +89,7 @@ const ProdutosSelecionados = ({
   );
 
   return (
-    <div className="w-[32%] h-full flex flex-col bg-background border border-border rounded-2xl overflow-hidden">
+    <div className="w-full h-full flex flex-col bg-background border border-border rounded-2xl overflow-hidden">
       
       {/* CABEÇALHO */}
       <div className="p-4 bg-card border-b border-border flex justify-between items-center shrink-0">
@@ -154,7 +154,7 @@ const ProdutosSelecionados = ({
 
                 {/* Controles Baixo */}
                 <div className="flex justify-between items-center bg-background p-2.5 rounded-lg gap-2.5">
-                  <div className="flex flex-col gap-1.5 flex-1">
+                  <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                     
                     {/* Seletor Quantidade Pill */}
                     <div className="flex items-center bg-secondary/30 rounded-full border border-border p-0.5 max-w-[100px]">
@@ -222,7 +222,7 @@ const ProdutosSelecionados = ({
 
                   </div>
                   
-                  <div className="text-right min-w-fit">
+                  <div className="text-right min-w-fit pl-2">
                     <span className="text-[10px] text-muted-foreground block">Un: R$ {formatarParaReal(valorItem)}</span>
                     <strong className="text-sm text-success font-bold">R$ {formatarParaReal(totalDoItem)}</strong>
                   </div>
@@ -243,7 +243,7 @@ const ProdutosSelecionados = ({
           </div>
           <button
             type="button"
-            className="w-full p-3.5 rounded-xl border-none bg-primary text-primary-foreground font-extrabold cursor-pointer transition-all hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full p-3.5 rounded-xl border-none bg-primary text-primary-foreground font-extrabold cursor-pointer transition-all hover:brightness-110 hover:shadow-lg hover:shadow-primary/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => setMostrarModalOrcamento(true)}
             disabled={gerandoOrcamento}
           >
@@ -272,7 +272,7 @@ const ProdutosSelecionados = ({
                   <input 
                     type="text" 
                     placeholder="Ex: João Silva" 
-                    className="p-3.5 bg-card border border-input rounded-xl text-foreground text-sm outline-none transition-colors focus:border-primary focus:bg-accent"
+                    className="p-3.5 bg-card border border-border rounded-xl text-foreground text-sm outline-none transition-colors focus:border-primary focus:bg-background"
                     value={dadosCliente.nome} 
                     onChange={(e) => setDadosCliente({...dadosCliente, nome: e.target.value})} 
                     onKeyDown={(e) => {
@@ -287,7 +287,7 @@ const ProdutosSelecionados = ({
                   <input 
                     type="text" 
                     placeholder="(00) 00000-0000" 
-                    className="p-3.5 bg-card border border-input rounded-xl text-foreground text-sm outline-none transition-colors focus:border-primary focus:bg-accent"
+                    className="p-3.5 bg-card border border-border rounded-xl text-foreground text-sm outline-none transition-colors focus:border-primary focus:bg-background"
                     value={dadosCliente.telefone} 
                     onChange={(e) => setDadosCliente({...dadosCliente, telefone: e.target.value})} 
                     onKeyDown={(e) => {
@@ -308,8 +308,8 @@ const ProdutosSelecionados = ({
             </div>
 
             <div className="p-5 bg-card flex gap-3 border-t border-border">
-              <button className="flex-1 p-3.5 rounded-xl border-none font-extrabold text-sm cursor-pointer transition-colors bg-secondary text-secondary-foreground hover:bg-muted-foreground/20 hover:text-foreground" onClick={() => setMostrarModalOrcamento(false)}>VOLTAR [ESC]</button>
-              <button className="flex-1 p-3.5 rounded-xl border-none font-extrabold text-sm cursor-pointer transition-colors bg-primary text-primary-foreground hover:bg-primary/90" onClick={confirmarGerarOrcamento}>GERAR PDF</button>
+              <button className="flex-1 p-3.5 rounded-xl border-none font-extrabold text-sm cursor-pointer transition-colors bg-secondary text-foreground hover:bg-muted-foreground/20" onClick={() => setMostrarModalOrcamento(false)}>VOLTAR [ESC]</button>
+              <button className="flex-1 p-3.5 rounded-xl border-none font-extrabold text-sm cursor-pointer transition-colors bg-primary text-primary-foreground hover:brightness-110" onClick={confirmarGerarOrcamento}>GERAR PDF</button>
             </div>
 
           </div>

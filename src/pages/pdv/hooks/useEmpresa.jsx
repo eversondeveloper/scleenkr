@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { api } from '../../../api/client';
+import { apiClient } from '../../../api/apiClient';
 
 export const useEmpresa = () => {
   const [dadosEmpresa, setDadosEmpresa] = useState(null);
@@ -11,7 +11,7 @@ export const useEmpresa = () => {
       setCarregandoEmpresa(true);
       setErroEmpresa(null);
       try {
-        const dados = await api.get('/empresas');
+        const dados = await apiClient.get('/empresas');
         if (dados.length > 0) {
           setDadosEmpresa(dados[0]);
         } else {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { api } from '../../../api/client';
+import { apiClient } from '../../../api/apiClient';
 
 const getDataAtualFormatada = () => {
   const d = new Date();
@@ -39,7 +39,7 @@ export const useRetiradas = () => {
       if (dataInicio) params.append('inicio', dataInicio);
       if (dataFim) params.append('fim', dataFim);
       const query = params.toString() ? `?${params.toString()}` : '';
-      const dados = await api.get(`/retiradas-caixa${query}`);
+      const dados = await apiClient.get(`/retiradas-caixa${query}`);
       const lista = Array.isArray(dados) ? dados : [];
       setRetiradas(lista);
       setRetiradasFiltradas(lista);
@@ -69,7 +69,7 @@ export const useRetiradas = () => {
     if (!novaRetirada.valorRetirado || !novaRetirada.motivo) throw new Error('Preencha o valor e o motivo da retirada.');
     const valor = parseFloat(String(novaRetirada.valorRetirado).replace(',', '.'));
     if (isNaN(valor) || valor <= 0) throw new Error('Digite um valor numérico válido.');
-    const resultado = await api.post('/retiradas-caixa', {
+    const resultado = await apiClient.post('/retiradas-caixa', {
       valor,
       motivo: novaRetirada.motivo,
       observacao: novaRetirada.observacao || '',
@@ -80,7 +80,7 @@ export const useRetiradas = () => {
   }, [novaRetirada, combinarDataHora, buscarRetiradas]);
 
   const atualizarRetirada = useCallback(async (id, dados) => {
-    const resultado = await api.patch(`/retiradas-caixa/${id}`, {
+    const resultado = await apiClient.patch(`/retiradas-caixa/${id}`, {
       valor: parseFloat(String(dados.valorRetirado).replace(',', '.')),
       motivo: dados.motivo,
       observacao: dados.observacao || '',
