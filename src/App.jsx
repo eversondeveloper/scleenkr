@@ -1,16 +1,48 @@
 import { useState, useEffect, useCallback } from "react";
 import { api } from "./api/client";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom"; 
 import { Relatorios } from "./pages/relatorio_vendas/Relatorios";
 import { Produtos } from "./pages/cadastro_produtos/Produtos";
 import { GerarCupom } from "./pages/gerar_cupom/GerarCupom";
-import ComponenteVendas2 from "./pages/pdv/ComponenteVendas";
+import ComponenteVendas from "./pages/pdv/ComponenteVendas";
 import { CadastroAtendentes } from "./pages/cadastro_atendentes/CadastroAtendentes";
+import { Login } from "./pages/login/Login";
 import { useAtendentes } from "./pages/cadastro_atendentes/hooks/useAtendentes";
 import { useSessoesCaixa } from "./pages/cadastro_atendentes/hooks/useSessoesCaixa";
 import { Header } from "./components/layout/Header";
 import { Footer } from "./components/layout/Footer";
 
+const PainelLayout = ({ 
+  empresaSelecionada, 
+  sessaoAtual, 
+  menuAberto, 
+  toggleMenu, 
+  fecharMenu 
+}) => {
+  return (
+    <div className="w-screen h-screen overflow-hidden bg-background flex flex-col font-sans">
+      <Header 
+        empresaSelecionada={empresaSelecionada}
+        sessaoAtual={sessaoAtual}
+        menuAberto={menuAberto}
+        toggleMenu={toggleMenu}
+        fecharMenu={fecharMenu}
+      />
+      <div 
+        className="flex-1 w-full flex justify-center overflow-hidden pt-5 pb-5 px-2 md:px-5" 
+        onClick={fecharMenu}
+      >
+        <main className="w-full h-full bg-card rounded-xl shadow-2xl border border-border overflow-y-auto box-border [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/50">
+          <Outlet /> 
+        </main>
+      </div>
+
+      <Footer />
+    </div>
+  );
+};
+
+// APLICAÇÃO PRINCIPAL  
 function App() {
   const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
   const [carregandoSistema, setCarregandoSistema] = useState(true);
@@ -90,36 +122,38 @@ function App() {
 
   if (carregandoSistema) {
     return (
-      <div className="bg-background h-screen text-white flex items-center justify-center">
+      <div className="bg-background h-screen text-white flex items-center justify-center animate-pulse">
         Sincronizando $CLEENKR...
       </div>
     );
   };
 
   return (
-    <div className="w-screen h-screen overflow-hidden bg-background flex flex-col font-sans">
-      <Header 
-        empresaSelecionada={empresaSelecionada}
-        sessaoAtual={sessaoAtual}
-        menuAberto={menuAberto}
-        toggleMenu={toggleMenu}
-        fecharMenu={fecharMenu}
-      />
+    <Routes>
+      {/* ROTA DE LOGIN (Fora da Casca - Layout Limpo) */}
+      <Route path="/scleenkr/login" element={<Login />} />
 
-      <main className="w-screen h-[88%] flex items-center justify-center bg-background" onClick={fecharMenu}>
-        <Routes>
-          <Route path="/scleenkr/" element={<ComponenteVendas2 somStatus={statusSom} sessaoAtual={sessaoAtual} temAtendentes={temAtendentes} empresaGlobal={empresaSelecionada} />} />
-          <Route path="/scleenkr/relatorios" element={<Relatorios empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
-          <Route path="/scleenkr/produtos" element={<Produtos $empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
-          <Route path="/scleenkr/gerarcupom" element={<GerarCupom empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
-          <Route path="/scleenkr/atendentes_sessao" element={<CadastroAtendentes empresaSelecionada={empresaSelecionada} somStatus={statusSom} onAtualizarEmpresa={carregarDadosEmpresa} onResetEstado={resetarSistemaLocal} buscarSessaoAtual={buscarSessaoAtual} />} />
-          <Route path="*" element={<Navigate to="/scleenkr/" />} />
-        </Routes>
-      </main>
-
-      <Footer />
-
-    </div>
+      {/* ROTAS DO PAINEL (Dentro do PainelLayout) */}
+      <Route element={
+        <PainelLayout 
+          empresaSelecionada={empresaSelecionada}
+          sessaoAtual={sessaoAtual}
+          menuAberto={menuAberto}
+          toggleMenu={toggleMenu}
+          fecharMenu={fecharMenu}
+        />
+      }>
+        
+        <Route path="/scleenkr/" element={<Navigate to="/scleenkr/pdv" replace />} />
+        <Route path="/scleenkr/pdv" element={<ComponenteVendas somStatus={statusSom} sessaoAtual={sessaoAtual} temAtendentes={temAtendentes} empresaGlobal={empresaSelecionada} />} />
+        <Route path="/scleenkr/relatorios" element={<Relatorios empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
+        <Route path="/scleenkr/produtos" element={<Produtos $empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
+        <Route path="/scleenkr/gerarcupom" element={<GerarCupom empresaSelecionada={empresaSelecionada} somStatus={statusSom} />} />
+        <Route path="/scleenkr/atendentes_sessao" element={<CadastroAtendentes empresaSelecionada={empresaSelecionada} somStatus={statusSom} onAtualizarEmpresa={carregarDadosEmpresa} onResetEstado={resetarSistemaLocal} buscarSessaoAtual={buscarSessaoAtual} />} />
+      
+        <Route path="*" element={<Navigate to="/scleenkr/pdv" />} />
+      </Route>
+    </Routes>
   );
 };
 
