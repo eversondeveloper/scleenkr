@@ -7,19 +7,20 @@
  *   const token = getToken();
  */
 
-const TOKEN_KEY = 'scleenkr_token';
+const TOKEN_KEY: string = 'scleenkr_token';
 
 /**
  * Retorna o token salvo (ou null).
  */
-export function getToken() {
+export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
 /**
  * Salva o token no storage.
+ * Se o valor for vazio (null/undefined/string vazia), remove o token.
  */
-export function setToken(newToken) {
+export function setToken(newToken: string | null | undefined): void {
   if (!newToken) {
     removeToken();
     return;
@@ -30,6 +31,6 @@ export function setToken(newToken) {
 /**
  * Remove o token (logout).
  */
-export function removeToken() {
+export function removeToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
