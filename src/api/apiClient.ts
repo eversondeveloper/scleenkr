@@ -1,5 +1,5 @@
 // src/api/apiClient.ts
-import { getToken, removeToken } from '@/utils/token';
+import { getToken, removeToken } from '@/lib/utils/token';
 import { ApiError } from './errors';
 
 const BASE_URL: string = import.meta.env.VITE_API_URL || 'http://localhost:3000';

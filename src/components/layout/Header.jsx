@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import LogoScleenkr from "../../assets/icons/LogoScleenkr.jsx";
-import { authService } from "../../lib/modules/auth/service"; // Importando o nosso serviço
+import LogoScleenkr from "@/assets/icons/LogoScleenkr";
+import { authService } from "@/lib/modules/auth/service";
 
 export function Header({ 
   empresaSelecionada, 

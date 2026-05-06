@@ -21,7 +21,7 @@ const COR_PADRAO_DEFAULT = "#263238";
 const COR_SELECIONADO = "#1e1e1e"; 
 const LIMITE_MAIS_VENDIDO = 50; 
 
-const Button = ({
+export const Button = ({
   $index,
   $texto, 
   $descricao,
@@ -92,7 +92,7 @@ const Button = ({
           {$texto}
         </label>
         
-        <h4 className="text-[13px] font-semibold m-0 leading-tight text-white line-clamp-2 min-h-[31px]">
+        <h4 className="text-[13px] font-semibold m-0 leading-tight text-white line-clamp-2 min-h-7.75">
           {$descricao.toUpperCase()}
         </h4>
         
